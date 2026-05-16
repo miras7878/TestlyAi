@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
+/* CRITICAL: hide all pages immediately before JS loads */
+.page { display: none !important; }
+.page.active { display: block !important; }
+
 /* ============================================================
    RESET & BASE
    ============================================================ */
@@ -1102,7 +1106,7 @@ footer {
     <div style="max-width:860px;margin:0 auto;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:var(--card-shadow);background:#000;position:relative">
       <video controls autoplay muted loop playsinline
              style="width:100%;display:block;max-height:520px;object-fit:cover"
-             src="ai_video.mov">
+             src="ai_video.mp4">
         Your browser does not support the video tag.
       </video>
       <div style="position:absolute;top:.75rem;right:.75rem;background:rgba(0,212,170,0.15);border:1px solid rgba(0,212,170,0.3);color:var(--accent3);font-size:.7rem;font-weight:700;padding:.25rem .65rem;border-radius:20px;letter-spacing:.05em">🤖 AI Generated</div>
