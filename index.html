@@ -1,0 +1,2713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testly — AI-Powered A/B Testing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080c14;
+  --bg2: #0d1220;
+  --bg3: #111827;
+  --bg4: #1a2235;
+  --border: rgba(99,130,255,0.13);
+  --border2: rgba(99,130,255,0.22);
+  --accent: #4f7dff;
+  --accent2: #7c53ff;
+  --accent3: #00d4aa;
+  --text: #e8eaf6;
+  --text2: #8b9ab5;
+  --text3: #4f5f7a;
+  --success: #00d4aa;
+  --warn: #f59e0b;
+  --danger: #f25060;
+  --card-shadow: 0 4px 32px rgba(0,0,0,0.45);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+/* ── LIGHT MODE ── */
+body.light {
+  --bg: #f5f7ff;
+  --bg2: #eef0f8;
+  --bg3: #ffffff;
+  --bg4: #e8ecf7;
+  --border: rgba(79,125,255,0.15);
+  --border2: rgba(79,125,255,0.28);
+  --accent: #3a6aff;
+  --accent2: #6a3fff;
+  --accent3: #00a88a;
+  --text: #0d1220;
+  --text2: #3a4a6b;
+  --text3: #7a8aab;
+  --success: #00a88a;
+  --warn: #d97706;
+  --danger: #dc2626;
+  --card-shadow: 0 4px 24px rgba(79,125,255,0.10);
+}
+
+/* Theme toggle button */
+.theme-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2); font-size: .95rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s; flex-shrink: 0;
+}
+.theme-btn:hover { color: var(--accent); border-color: var(--accent); }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: var(--font-body); }
+input, textarea, select { font-family: var(--font-body); }
+
+/* ============================================================
+   PAGES (SPA routing)
+   ============================================================ */
+.page { display: none !important; min-height: 100vh; overflow-x: hidden; }
+.page.active { display: block !important; }
+img { max-width: 100%; height: auto; }
+
+/* ============================================================
+   NAV
+   ============================================================ */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,12,20,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2.5rem;
+  height: 62px;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-weight: 800; font-size: 1.35rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+.nav-logo span { -webkit-text-fill-color: var(--accent3); }
+.nav-links { display: flex; gap: 0.25rem; align-items: center; }
+.nav-links button {
+  background: none; border: none; color: var(--text2);
+  font-size: 0.875rem; font-weight: 500;
+  padding: 0.45rem 0.9rem; border-radius: var(--radius-sm);
+  transition: color 0.2s, background 0.2s;
+}
+.nav-links button:hover { color: var(--text); background: rgba(79,125,255,0.08); }
+.nav-links button.active { color: var(--accent); background: rgba(79,125,255,0.12); }
+.nav-cta {
+  background: linear-gradient(135deg, var(--accent), var(--accent2)) !important;
+  color: #fff !important;
+  padding: 0.45rem 1.1rem !important;
+  border-radius: 20px !important;
+  font-weight: 500 !important;
+}
+.nav-cta:hover { opacity: 0.88; }
+.lang-switcher {
+  display: flex; align-items: center; gap: 2px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 20px; padding: 3px; margin-left: .5rem;
+}
+.lang-btn {
+  background: none; border: none; color: var(--text3);
+  font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+  padding: .25rem .55rem; border-radius: 16px;
+  transition: all .2s; cursor: pointer;
+}
+.lang-btn:hover { color: var(--text); }
+.lang-btn.active { background: var(--accent); color: #fff; }
+.nav-hamburger {
+  display: none; background: none; border: none;
+  color: var(--text2); font-size: 1.4rem; line-height: 1;
+}
+@media (max-width: 700px) {
+  nav { padding: 0 1.2rem; }
+  .nav-links { display: none; position: absolute; top: 62px; left: 0; right: 0;
+    flex-direction: column; background: var(--bg2);
+    border-bottom: 1px solid var(--border); padding: 0.75rem; gap: 0.15rem; }
+  .nav-links.open { display: flex; }
+  .nav-hamburger { display: block; }
+}
+
+/* ============================================================
+   MUSIC TOGGLE BAR
+   ============================================================ */
+.music-bar {
+  position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 200;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 40px;
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  transition: all 0.3s;
+}
+.music-bar:hover { border-color: rgba(99,130,255,0.38); }
+.music-eq { display: flex; align-items: flex-end; gap: 2px; height: 18px; }
+.music-eq span {
+  display: block; width: 3px; background: var(--accent);
+  border-radius: 2px; transform-origin: bottom;
+}
+.music-eq span:nth-child(1) { height: 6px; }
+.music-eq span:nth-child(2) { height: 13px; }
+.music-eq span:nth-child(3) { height: 9px; }
+.music-eq span:nth-child(4) { height: 16px; }
+.music-eq span:nth-child(5) { height: 7px; }
+.music-bar.playing .music-eq span:nth-child(1) { animation: eq 0.7s 0.1s ease-in-out infinite alternate; }
+.music-bar.playing .music-eq span:nth-child(2) { animation: eq 0.6s 0.2s ease-in-out infinite alternate; }
+.music-bar.playing .music-eq span:nth-child(3) { animation: eq 0.8s 0.05s ease-in-out infinite alternate; }
+.music-bar.playing .music-eq span:nth-child(4) { animation: eq 0.55s 0.3s ease-in-out infinite alternate; }
+.music-bar.playing .music-eq span:nth-child(5) { animation: eq 0.9s 0.15s ease-in-out infinite alternate; }
+@keyframes eq { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+.music-info { font-size: 0.75rem; color: var(--text2); }
+.music-info strong { display: block; color: var(--text); font-size: 0.8rem; }
+.music-btn {
+  background: rgba(79,125,255,0.15); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 50%; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+  transition: background 0.2s;
+}
+.music-btn:hover { background: rgba(79,125,255,0.28); }
+
+/* ============================================================
+   SECTION UTILITY
+   ============================================================ */
+.section { padding: 5rem 2.5rem; max-width: 1200px; margin: 0 auto; }
+.section-sm { padding: 3rem 2.5rem; max-width: 1200px; margin: 0 auto; }
+.tag {
+  display: inline-block;
+  background: rgba(79,125,255,0.12);
+  color: var(--accent);
+  border: 1px solid rgba(79,125,255,0.25);
+  padding: 0.25rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.tag.green { background: rgba(0,212,170,0.1); color: var(--accent3); border-color: rgba(0,212,170,0.25); }
+h1,h2,h3,h4 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; }
+
+/* ============================================================
+   CARDS & GLASSMORPHISM
+   ============================================================ */
+.card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border2);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.55);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.7rem 1.6rem;
+  border-radius: 24px; border: none;
+  font-size: 0.9rem; font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; box-shadow: 0 4px 20px rgba(79,125,255,0.35);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(79,125,255,0.45); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-ghost { background: rgba(79,125,255,0.1); color: var(--accent); border: none; }
+.btn-ghost:hover { background: rgba(79,125,255,0.2); }
+.btn-sm { padding: 0.45rem 1rem; font-size: 0.8rem; }
+.btn-xs { padding: 0.3rem 0.7rem; font-size: 0.75rem; }
+
+/* ============================================================
+   STAT CARDS (animated)
+   ============================================================ */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.stat-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.35rem 1.5rem;
+  position: relative; overflow: hidden;
+  animation: cardReveal 0.5s ease both;
+}
+.stat-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(79,125,255,0.05), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.stat-card:hover::before { opacity: 1; }
+.stat-card:hover { transform: translateY(-4px); border-color: var(--border2); }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.12s; }
+.stat-card:nth-child(3) { animation-delay: 0.19s; }
+.stat-card:nth-child(4) { animation-delay: 0.26s; }
+.stat-card:nth-child(5) { animation-delay: 0.33s; }
+.stat-card:nth-child(6) { animation-delay: 0.40s; }
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.stat-label { font-size: 0.75rem; color: var(--text3); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.stat-val { font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; color: var(--text); line-height: 1; }
+.stat-delta { font-size: 0.78rem; margin-top: 0.35rem; }
+.delta-up { color: var(--success); }
+.delta-down { color: var(--danger); }
+.stat-icon {
+  position: absolute; right: 1.1rem; top: 1.1rem;
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+
+/* ============================================================
+   CHARTS (Canvas-based)
+   ============================================================ */
+.chart-wrap {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.5rem;
+  animation: cardReveal 0.5s 0.3s ease both;
+}
+.chart-title { font-family: var(--font-display); font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
+.chart-legend { display: flex; gap: 1.2rem; margin-bottom: 1rem; }
+.legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text2); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+.table-wrap {
+  overflow-x: auto; border-radius: var(--radius);
+  border: 1px solid var(--border);
+  animation: cardReveal 0.5s 0.4s ease both;
+}
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: var(--bg4); }
+thead th {
+  padding: 0.85rem 1rem; text-align: left;
+  font-size: 0.75rem; font-weight: 600;
+  color: var(--text3); letter-spacing: 0.07em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(79,125,255,0.04); }
+td { padding: 0.85rem 1rem; font-size: 0.875rem; color: var(--text); }
+.badge {
+  display: inline-block; padding: 0.2rem 0.65rem;
+  border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+}
+.badge-a { background: rgba(79,125,255,0.15); color: var(--accent); }
+.badge-b { background: rgba(124,83,255,0.15); color: var(--accent2); }
+.badge-win { background: rgba(0,212,170,0.15); color: var(--accent3); }
+.badge-run { background: rgba(245,158,11,0.15); color: var(--warn); }
+.bar-mini {
+  display: inline-block; height: 6px; border-radius: 3px;
+  min-width: 4px; vertical-align: middle; margin-right: 6px;
+}
+
+/* ============================================================
+   PAGE: HOME
+   ============================================================ */
+.hero {
+  min-height: calc(100vh - 62px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem;
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(79,125,255,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 60%, rgba(124,83,255,0.1) 0%, transparent 60%);
+}
+.hero-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(99,130,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99,130,255,0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent);
+}
+.hero-eyebrow { animation: fadeUp 0.6s 0.1s both; }
+.hero h1 {
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 800; line-height: 1.08;
+  letter-spacing: -0.03em;
+  margin: 0.75rem 0 1.25rem;
+  animation: fadeUp 0.6s 0.2s both;
+}
+.hero h1 .grad {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  max-width: 540px; color: var(--text2);
+  font-size: 1.05rem; margin: 0 auto 2rem;
+  animation: fadeUp 0.6s 0.3s both;
+}
+.hero-btns { display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.6s 0.4s both; }
+.hero-demo {
+  margin-top: 4rem; width: 100%; max-width: 860px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  animation: fadeUp 0.7s 0.55s both;
+}
+.hero-demo-bar {
+  background: var(--bg4); padding: 0.6rem 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+.demo-url {
+  flex: 1; background: var(--bg3); border-radius: 6px;
+  padding: 0.2rem 0.7rem; font-size: 0.72rem; color: var(--text3);
+  margin: 0 0.5rem;
+}
+.hero-demo-body { padding: 1.5rem; }
+.mini-stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+.mini-stat {
+  background: var(--bg4); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.85rem;
+}
+.mini-stat-l { font-size: 0.65rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; }
+.mini-stat-v { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; }
+.mini-stat-d { font-size: 0.7rem; margin-top: 0.15rem; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Features */
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+.feature-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.75rem;
+  transition: all 0.3s;
+}
+.feature-card:hover { border-color: var(--border2); transform: translateY(-4px); }
+.feature-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; margin-bottom: 1rem;
+}
+.fi-blue { background: rgba(79,125,255,0.12); }
+.fi-purple { background: rgba(124,83,255,0.12); }
+.fi-teal { background: rgba(0,212,170,0.12); }
+.feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.feature-card p { font-size: 0.875rem; color: var(--text2); line-height: 1.6; }
+
+/* Pricing */
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+.pricing-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 2rem;
+  transition: all 0.3s; position: relative;
+}
+.pricing-card.featured {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(79,125,255,0.3), 0 16px 48px rgba(79,125,255,0.15);
+}
+.pricing-featured-tag {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; padding: 0.2rem 0.9rem; border-radius: 20px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em;
+}
+.pricing-price { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin: 0.75rem 0; }
+.pricing-price sup { font-size: 1.2rem; vertical-align: super; }
+.pricing-price sub { font-size: 0.9rem; color: var(--text2); }
+.pricing-features { list-style: none; margin: 1.25rem 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.pricing-features li { font-size: 0.875rem; color: var(--text2); display: flex; align-items: center; gap: 0.5rem; }
+.pricing-features li::before { content: '✓'; color: var(--success); font-weight: 700; }
+
+/* Testimonials */
+.testimonial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+.testimonial-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.75rem;
+}
+.testi-stars { color: var(--warn); letter-spacing: 2px; font-size: 0.9rem; margin-bottom: 0.75rem; }
+.testi-quote { font-size: 0.9rem; color: var(--text2); line-height: 1.65; margin-bottom: 1rem; font-style: italic; }
+.testi-author { display: flex; align-items: center; gap: 0.75rem; }
+.testi-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; color: #fff;
+}
+.testi-name { font-size: 0.85rem; font-weight: 600; }
+.testi-role { font-size: 0.75rem; color: var(--text3); }
+
+/* Section heading */
+.section-heading { margin-bottom: 3rem; }
+.section-heading h2 { font-size: clamp(1.8rem, 3.5vw, 2.6rem); letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+.section-heading p { color: var(--text2); max-width: 520px; font-size: 1rem; }
+
+/* ============================================================
+   PAGE: DASHBOARD
+   ============================================================ */
+.dash-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+}
+.dash-header h2 { font-size: 1.5rem; font-weight: 700; }
+.dash-tabs { display: flex; gap: 0.35rem; background: var(--bg3); border: 1px solid var(--border); border-radius: 24px; padding: 0.25rem; }
+.dash-tab {
+  padding: 0.35rem 1rem; border-radius: 20px; border: none;
+  font-size: 0.8rem; font-weight: 500; background: transparent; color: var(--text2);
+  cursor: pointer; transition: all 0.2s;
+}
+.dash-tab.active { background: var(--accent); color: #fff; }
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin: 1.5rem 0; }
+@media (max-width: 800px) { .charts-grid { grid-template-columns: 1fr; } }
+.ab-compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
+}
+@media (max-width: 600px) { .ab-compare { grid-template-columns: 1fr; } }
+.ab-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.5rem;
+  position: relative; overflow: hidden;
+  animation: cardReveal 0.5s ease both;
+}
+.ab-card.winner::after {
+  content: '🏆 Winner';
+  position: absolute; top: 0.9rem; right: 0.9rem;
+  background: rgba(0,212,170,0.12); color: var(--accent3);
+  border: 1px solid rgba(0,212,170,0.25);
+  padding: 0.15rem 0.55rem; border-radius: 20px;
+  font-size: 0.7rem; font-weight: 700;
+}
+.ab-card h3 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem; }
+.ab-card .sub { font-size: 0.8rem; color: var(--text3); margin-bottom: 1rem; }
+.ab-metric { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0; border-bottom: 1px solid var(--border); }
+.ab-metric:last-child { border-bottom: none; }
+.ab-metric-label { font-size: 0.8rem; color: var(--text2); }
+.ab-metric-val { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
+.ab-bar-wrap { margin-top: 0.9rem; }
+.ab-bar-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text3); margin-bottom: 0.35rem; }
+.ab-bar-track { height: 8px; background: var(--bg4); border-radius: 4px; overflow: hidden; }
+.ab-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+.fill-a { background: linear-gradient(90deg, var(--accent), #6b9bff); }
+.fill-b { background: linear-gradient(90deg, var(--accent2), #9b76ff); }
+
+/* AI placeholder images */
+.ai-imgs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.ai-img-placeholder {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  aspect-ratio: 16/9; position: relative;
+  animation: cardReveal 0.5s ease both;
+}
+.ai-img-placeholder canvas { width: 100% !important; height: 100% !important; }
+.ai-img-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(8,12,20,0.75); backdrop-filter: blur(8px);
+  padding: 0.5rem 0.75rem; font-size: 0.72rem; color: var(--text2);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ai-badge-pill {
+  background: rgba(79,125,255,0.15); color: var(--accent);
+  border: 1px solid rgba(79,125,255,0.25); border-radius: 20px;
+  padding: 0.1rem 0.5rem; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   PAGE: AI INSIGHTS
+   ============================================================ */
+.insights-layout {
+  display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 1000px) { .insights-layout { grid-template-columns: 1fr; } }
+.insight-cards { display: flex; flex-direction: column; gap: 1rem; }
+.insight-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.5rem;
+  animation: cardReveal 0.5s ease both;
+}
+.insight-card:nth-child(2) { animation-delay: 0.1s; }
+.insight-card:nth-child(3) { animation-delay: 0.2s; }
+.insight-card:nth-child(4) { animation-delay: 0.3s; }
+.insight-head { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.85rem; }
+.insight-icon {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+}
+.insight-icon.blue { background: rgba(79,125,255,0.12); }
+.insight-icon.purple { background: rgba(124,83,255,0.12); }
+.insight-icon.teal { background: rgba(0,212,170,0.1); }
+.insight-icon.warn { background: rgba(245,158,11,0.1); }
+.insight-title { font-size: 0.95rem; font-weight: 700; }
+.insight-subtitle { font-size: 0.78rem; color: var(--text3); margin-top: 0.1rem; }
+.insight-body { font-size: 0.875rem; color: var(--text2); line-height: 1.7; }
+.insight-body strong { color: var(--text); }
+.insight-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+
+/* Chatbot */
+.chatbot-panel {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); display: flex; flex-direction: column;
+  height: 600px; overflow: hidden; position: sticky; top: 80px;
+  animation: cardReveal 0.5s 0.2s both;
+}
+.chat-header {
+  background: var(--bg4); border-bottom: 1px solid var(--border);
+  padding: 0.9rem 1.1rem; display: flex; align-items: center; gap: 0.75rem;
+}
+.chat-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.chat-name { font-size: 0.875rem; font-weight: 700; }
+.chat-status { font-size: 0.72rem; color: var(--success); }
+.chat-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+.msg { display: flex; gap: 0.6rem; max-width: 90%; }
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.msg-bubble {
+  background: var(--bg4); border: 1px solid var(--border);
+  border-radius: 14px; padding: 0.65rem 0.9rem;
+  font-size: 0.82rem; line-height: 1.55; color: var(--text);
+}
+.msg.user .msg-bubble { background: rgba(79,125,255,0.15); border-color: rgba(79,125,255,0.25); color: var(--text); }
+.msg-avatar {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center; font-size: 0.7rem;
+  align-self: flex-end;
+}
+.msg.user .msg-avatar { background: var(--bg4); border: 1px solid var(--border); }
+.chat-input-area { padding: 0.85rem; border-top: 1px solid var(--border); }
+.chat-input-row { display: flex; gap: 0.5rem; }
+.chat-input {
+  flex: 1; background: var(--bg4); border: 1px solid var(--border);
+  border-radius: 22px; padding: 0.55rem 1rem;
+  color: var(--text); font-size: 0.82rem; outline: none;
+  transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: var(--border2); }
+.chat-send {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; font-size: 0.85rem; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s;
+}
+.chat-send:hover { transform: scale(1.08); }
+.chat-suggestions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.6rem; }
+.sugg-chip {
+  background: rgba(79,125,255,0.08); border: 1px solid rgba(79,125,255,0.18);
+  color: var(--accent); border-radius: 20px;
+  padding: 0.22rem 0.7rem; font-size: 0.73rem; cursor: pointer;
+  transition: all 0.2s;
+}
+.sugg-chip:hover { background: rgba(79,125,255,0.16); }
+.typing-indicator { display: flex; gap: 4px; align-items: center; padding: 0.5rem; }
+.typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text3); animation: typingBounce 1.2s infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+/* ============================================================
+   PAGE: ABOUT A/B TESTING
+   ============================================================ */
+.about-hero {
+  text-align: center; padding: 4rem 2rem 3rem;
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(79,125,255,0.12), transparent);
+}
+.about-hero h1 { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.02em; }
+.about-hero p { color: var(--text2); max-width: 560px; margin: 0.75rem auto 0; }
+.steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.5rem; }
+.step-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.75rem; position: relative;
+}
+.step-num {
+  font-family: var(--font-display); font-size: 2.5rem; font-weight: 800;
+  color: rgba(79,125,255,0.15); position: absolute; top: 1rem; right: 1.25rem;
+  line-height: 1;
+}
+.step-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.step-card p { font-size: 0.875rem; color: var(--text2); line-height: 1.65; }
+.faq { display: flex; flex-direction: column; gap: 0.75rem; }
+.faq-item {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.faq-q {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.25rem; cursor: pointer;
+  font-size: 0.9rem; font-weight: 600; color: var(--text);
+  background: none; border: none; width: 100%; text-align: left;
+  transition: color 0.2s;
+}
+.faq-q:hover { color: var(--accent); }
+.faq-q .arrow { font-size: 0.75rem; color: var(--text3); transition: transform 0.25s; }
+.faq-q.open .arrow { transform: rotate(180deg); }
+.faq-a {
+  display: none; padding: 0 1.25rem 1.1rem;
+  font-size: 0.875rem; color: var(--text2); line-height: 1.7;
+  border-top: 1px solid var(--border);
+}
+.faq-a.open { display: block; }
+.stats-banner {
+  background: linear-gradient(135deg, rgba(79,125,255,0.08), rgba(124,83,255,0.08));
+  border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 2.5rem;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 2rem;
+  text-align: center;
+}
+.banner-val { font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; margin-bottom: 0.3rem; }
+.banner-lbl { font-size: 0.85rem; color: var(--text2); }
+
+/* ============================================================
+   PAGE: CONTACT
+   ============================================================ */
+.contact-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2.5rem; align-items: start; }
+@media (max-width: 800px) { .contact-layout { grid-template-columns: 1fr; } }
+.contact-form-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 2rem;
+  animation: cardReveal 0.5s 0.1s both;
+}
+.form-group { margin-bottom: 1.1rem; }
+.form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text2); margin-bottom: 0.4rem; letter-spacing: 0.04em; }
+.form-input {
+  width: 100%; background: var(--bg4); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 0.7rem 0.9rem;
+  color: var(--text); font-size: 0.875rem; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,125,255,0.12); }
+.form-input::placeholder { color: var(--text3); }
+textarea.form-input { resize: vertical; min-height: 110px; }
+select.form-input option { background: var(--bg3); }
+.contact-info { animation: cardReveal 0.5s ease both; }
+.contact-info h2 { font-size: 1.7rem; margin-bottom: 0.6rem; }
+.contact-info p { color: var(--text2); margin-bottom: 1.5rem; }
+.contact-details { display: flex; flex-direction: column; gap: 1rem; }
+.contact-detail {
+  display: flex; align-items: flex-start; gap: 0.85rem;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 1rem 1.1rem;
+}
+.contact-detail-icon {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; background: rgba(79,125,255,0.1);
+}
+.contact-detail-title { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.15rem; }
+.contact-detail-val { font-size: 0.82rem; color: var(--text2); }
+.form-success {
+  display: none; background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.25);
+  border-radius: var(--radius-sm); padding: 1rem;
+  text-align: center; color: var(--accent3); font-size: 0.875rem; margin-top: 0.75rem;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 2.5rem;
+  display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 2rem;
+}
+@media (max-width: 800px) { footer { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { footer { grid-template-columns: 1fr; } }
+.footer-brand { display: flex; flex-direction: column; gap: 0.75rem; }
+.footer-logo {
+  font-family: var(--font-display); font-size: 1.2rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.footer-desc { font-size: 0.82rem; color: var(--text3); line-height: 1.65; }
+.footer-col h4 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 0.85rem; }
+.footer-col a { display: block; font-size: 0.82rem; color: var(--text2); margin-bottom: 0.5rem; transition: color 0.2s; }
+.footer-col a:hover { color: var(--accent); }
+.footer-bottom {
+  border-top: 1px solid var(--border); background: var(--bg2);
+  padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.5rem;
+}
+.footer-bottom p { font-size: 0.78rem; color: var(--text3); }
+
+/* ============================================================
+   MISC
+   ============================================================ */
+.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+.text-grad {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-teal { color: var(--accent3); }
+.center { text-align: center; }
+@media (max-width: 600px) {
+  .section, .section-sm { padding: 3rem 1.25rem; }
+  .mini-stat-row { grid-template-columns: repeat(2, 1fr); }
+  .ab-explainer-grid { grid-template-columns: 1fr !important; }
+}
+
+/* AI Image Cards */
+.ai-img-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  cursor: pointer; transition: transform .2s, border-color .2s;
+}
+.ai-img-card:hover { transform: translateY(-4px); border-color: var(--border2); }
+.ai-img-wrap {
+  position: relative; aspect-ratio: 4/3;
+  background: var(--bg4); display: flex; align-items: center; justify-content: center;
+}
+.ai-img-placeholder { text-align: center; }
+.ai-badge {
+  position: absolute; top: .6rem; right: .6rem;
+  background: rgba(124,83,255,0.2); border: 1px solid rgba(124,83,255,0.4);
+  color: var(--accent2); font-size: .65rem; font-weight: 700;
+  padding: .2rem .5rem; border-radius: 10px; letter-spacing: .05em;
+}
+.ai-img-caption { padding: .85rem 1rem; }
+.ai-img-title { font-family: var(--font-display); font-weight: 700; font-size: .9rem; margin-bottom: .3rem; }
+.ai-img-desc { font-size: .78rem; color: var(--text2); line-height: 1.5; }
+
+/* Back to top */
+.back-to-top {
+  position: fixed; bottom: 5rem; right: 1.5rem; z-index: 90;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text2); font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0; pointer-events: none;
+  transition: opacity .3s, transform .2s;
+}
+.back-to-top.visible { opacity: 1; pointer-events: auto; }
+.back-to-top:hover { transform: translateY(-3px); color: var(--accent); border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <div class="nav-logo">Testly<span>.</span></div>
+  <div class="nav-links" id="navLinks">
+    <button class="nav-links-btn active" onclick="showPage('home',this)" data-i18n="nav_home">Home</button>
+    <button class="nav-links-btn" onclick="showPage('dashboard',this)" data-i18n="nav_dashboard">Dashboard</button>
+    <button class="nav-links-btn" onclick="showPage('insights',this)" data-i18n="nav_insights">AI Insights</button>
+    <button class="nav-links-btn" onclick="showPage('about',this)" data-i18n="nav_about">About A/B</button>
+    <button class="nav-links-btn" onclick="showPage('contact',this)" data-i18n="nav_contact">Contact</button>
+    <button class="nav-links-btn nav-cta" onclick="showPage('dashboard',this)" data-i18n="nav_cta">Get Started →</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:.5rem">
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme" title="Switch theme">🌙</button>
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="ru">RU</button>
+      <button class="lang-btn" data-lang="kz">KZ</button>
+    </div>
+    <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">☰</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     PAGE: HOME
+     ============================================================ -->
+<div class="page active" id="page-home">
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="tag hero-eyebrow" data-i18n="hero_tag">✦ AI-Powered A/B Testing</div>
+    <h1 data-i18n="hero_h1">Test smarter.<br>Ship with <span class="grad">confidence.</span></h1>
+    <p class="hero-sub" data-i18n="hero_sub">Testly combines statistical rigor with AI-driven insights to help you understand what's working — and why — in your experiments.</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="showPage('dashboard',null)" data-i18n="hero_btn1">View Live Dashboard →</button>
+      <button class="btn btn-outline" onclick="showPage('about',null)" data-i18n="hero_btn2">How it works</button>
+    </div>
+    <div class="hero-demo">
+      <div class="hero-demo-bar">
+        <div class="demo-dot" style="background:#f25060"></div>
+        <div class="demo-dot" style="background:#f59e0b"></div>
+        <div class="demo-dot" style="background:#00d4aa"></div>
+        <div class="demo-url">app.testly.io/experiments/homepage-cta-test</div>
+      </div>
+      <div class="hero-demo-body">
+        <div class="mini-stat-row">
+          <div class="mini-stat">
+            <div class="mini-stat-l">Total Clicks</div>
+            <div class="mini-stat-v text-grad">14,872</div>
+            <div class="mini-stat-d delta-up">↑ +31.7%</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-l">Avg Conversion</div>
+            <div class="mini-stat-v text-grad">5.4%</div>
+            <div class="mini-stat-d delta-up">↑ +38%</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-l">Avg Bounce</div>
+            <div class="mini-stat-v" style="color:var(--warn)">38.4%</div>
+            <div class="mini-stat-d delta-down">↓ −27.9%</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-l">Confidence</div>
+            <div class="mini-stat-v text-teal">97.3%</div>
+            <div class="mini-stat-d delta-up">✓ Significant</div>
+          </div>
+        </div>
+        <canvas id="heroChart" height="140"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <div class="section-heading center">
+      <div class="tag" data-i18n="feat_tag">Why Testly</div>
+      <h2 data-i18n="feat_h2">Everything you need to run great experiments</h2>
+      <p data-i18n="feat_sub">From hypothesis to conclusion, Testly guides your team through the full A/B testing lifecycle.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon fi-blue">📊</div><h3 data-i18n="feat1_h">Real-Time Analytics</h3><p>Watch your experiment data stream in live. Spot statistical significance the moment it happens with our smart alerts.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-purple">🧠</div><h3 data-i18n="feat2_h">AI-Powered Insights</h3><p>Our AI analyzes your results and surfaces actionable recommendations — not just numbers, but narratives.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-teal">🎯</div><h3 data-i18n="feat3_h">Segment Analysis</h3><p>Break down results by device, geography, user cohort, and 50+ dimensions to find exactly who responds to what.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-blue">⚡</div><h3 data-i18n="feat4_h">No-Code Setup</h3><p>Launch experiments in minutes with our visual editor. No developer needed for simple UI tests.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-purple">🔒</div><h3 data-i18n="feat5_h">Privacy-First</h3><p>Cookie-less experimentation with server-side rendering. GDPR, CCPA, and PECR compliant out of the box.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-teal">🔗</div><h3 data-i18n="feat6_h">Integrations</h3><p>Connect with your existing stack — Segment, Amplitude, Mixpanel, Heap, and 40+ other tools.</p></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <div class="section-heading center">
+      <div class="tag green">Pricing</div>
+      <h2 data-i18n="price_h2">Simple, transparent pricing</h2>
+      <p>Start free. Scale as you grow. No hidden fees, no per-seat nonsense.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="tag" style="margin-bottom:.5rem">Starter</div>
+        <div class="pricing-price"><sup>$</sup>0<sub>/mo</sub></div>
+        <p style="font-size:.82rem;color:var(--text3)">Free forever for small teams</p>
+        <ul class="pricing-features">
+          <li>Up to 3 active experiments</li>
+          <li>10k monthly visitors</li>
+          <li>Basic analytics</li>
+          <li>7-day data retention</li>
+        </ul>
+        <button class="btn btn-outline" style="width:100%">Start Free</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-featured-tag">Most Popular</div>
+        <div class="tag" style="margin-bottom:.5rem">Growth</div>
+        <div class="pricing-price"><sup>$</sup>49<sub>/mo</sub></div>
+        <p style="font-size:.82rem;color:var(--text3)">For growing product teams</p>
+        <ul class="pricing-features">
+          <li>Unlimited experiments</li>
+          <li>500k monthly visitors</li>
+          <li>AI Insights & recommendations</li>
+          <li>90-day data retention</li>
+          <li>Segment analysis</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%">Start Trial</button>
+      </div>
+      <div class="pricing-card">
+        <div class="tag" style="margin-bottom:.5rem">Enterprise</div>
+        <div class="pricing-price"><sup>$</sup>199<sub>/mo</sub></div>
+        <p style="font-size:.82rem;color:var(--text3)">For scale and compliance</p>
+        <ul class="pricing-features">
+          <li>Everything in Growth</li>
+          <li>Unlimited visitors</li>
+          <li>SSO & SCIM</li>
+          <li>Custom data retention</li>
+          <li>Dedicated support</li>
+        </ul>
+        <button class="btn btn-outline" style="width:100%">Contact Sales</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section class="section">
+    <div class="section-heading center">
+      <div class="tag" data-i18n="testi_tag">Testimonials</div>
+      <h2 data-i18n="testi_h2">Trusted by data-driven teams</h2>
+    </div>
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">"Testly's AI explanations saved us hours of analysis. We shipped a redesign that increased signups by 34% after just two experiments."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">SR</div>
+          <div><div class="testi-name">Sarah R.</div><div class="testi-role">VP Product, Loopify</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">"The segment breakdown feature is a game-changer. We discovered mobile users respond completely differently to CTAs — something we'd missed for years."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MK</div>
+          <div><div class="testi-name">Marcus K.</div><div class="testi-role">Head of Growth, Stackr</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-quote">"We ran 40+ experiments last quarter. Testly's dashboard makes it trivially easy to understand what's running and what's winning."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">JL</div>
+          <div><div class="testi-name">Jamie L.</div><div class="testi-role">CRO Lead, Nebula Commerce</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- AI GENERATED IMAGES SECTION -->
+  <section class="section" style="padding-top:3.5rem;padding-bottom:3.5rem">
+    <div class="section-heading center">
+      <div class="tag" style="background:rgba(124,83,255,0.1);color:var(--accent2);border-color:rgba(124,83,255,0.25)">✦ AI Generated</div>
+      <h2 data-i18n="ai_img_h2">Visualizing the Future of Experimentation</h2>
+      <p style="color:var(--text2)" data-i18n="ai_img_sub">Every image below was generated by AI — showing how data-driven decisions shape modern digital products.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;max-width:1100px;margin:0 auto">
+
+      <!-- Image 1 -->
+      <div class="ai-img-card" onclick="openLightbox(0)">
+        <div class="ai-img-wrap">
+          <img id="aiImg0" src="" alt="AI visualization: A/B split test dashboard" style="width:100%;height:100%;object-fit:cover;display:none">
+          <div class="ai-img-placeholder" id="aiPlaceholder0">
+            <div style="font-size:2rem;margin-bottom:.5rem">🧪</div>
+            <div style="font-size:.78rem;color:var(--text3)">A/B Split Dashboard</div>
+          </div>
+          <div class="ai-badge">AI</div>
+        </div>
+        <div class="ai-img-caption">
+          <div class="ai-img-title" data-i18n="ai_img1_title">A/B Test Dashboard</div>
+          <div class="ai-img-desc" data-i18n="ai_img1_desc">Real-time split testing interface with live conversion metrics</div>
+        </div>
+      </div>
+
+      <!-- Image 2 -->
+      <div class="ai-img-card" onclick="openLightbox(1)">
+        <div class="ai-img-wrap">
+          <img id="aiImg1" src="" alt="AI visualization: Data analytics" style="width:100%;height:100%;object-fit:cover;display:none">
+          <div class="ai-img-placeholder" id="aiPlaceholder1">
+            <div style="font-size:2rem;margin-bottom:.5rem">📊</div>
+            <div style="font-size:.78rem;color:var(--text3)">Data Analytics</div>
+          </div>
+          <div class="ai-badge">AI</div>
+        </div>
+        <div class="ai-img-caption">
+          <div class="ai-img-title" data-i18n="ai_img2_title">Statistical Significance</div>
+          <div class="ai-img-desc" data-i18n="ai_img2_desc">AI-powered confidence scoring and data pattern recognition</div>
+        </div>
+      </div>
+
+      <!-- Image 3 -->
+      <div class="ai-img-card" onclick="openLightbox(2)">
+        <div class="ai-img-wrap">
+          <img id="aiImg2" src="" alt="AI visualization: Conversion optimization" style="width:100%;height:100%;object-fit:cover;display:none">
+          <div class="ai-img-placeholder" id="aiPlaceholder2">
+            <div style="font-size:2rem;margin-bottom:.5rem">🎯</div>
+            <div style="font-size:.78rem;color:var(--text3)">Conversion Funnel</div>
+          </div>
+          <div class="ai-badge">AI</div>
+        </div>
+        <div class="ai-img-caption">
+          <div class="ai-img-title" data-i18n="ai_img3_title">Conversion Funnel</div>
+          <div class="ai-img-desc" data-i18n="ai_img3_desc">Visualizing user journey optimization through experiment data</div>
+        </div>
+      </div>
+
+      <!-- Image 4 -->
+      <div class="ai-img-card" onclick="openLightbox(3)">
+        <div class="ai-img-wrap">
+          <img id="aiImg3" src="" alt="AI visualization: Growth metrics" style="width:100%;height:100%;object-fit:cover;display:none">
+          <div class="ai-img-placeholder" id="aiPlaceholder3">
+            <div style="font-size:2rem;margin-bottom:.5rem">🚀</div>
+            <div style="font-size:.78rem;color:var(--text3)">Growth Metrics</div>
+          </div>
+          <div class="ai-badge">AI</div>
+        </div>
+        <div class="ai-img-caption">
+          <div class="ai-img-title" data-i18n="ai_img4_title">Growth Acceleration</div>
+          <div class="ai-img-desc" data-i18n="ai_img4_desc">Data-driven growth curves powered by continuous experimentation</div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- Lightbox -->
+  <div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:999;align-items:center;justify-content:center" onclick="closeLightbox()">
+    <img id="lightboxImg" style="max-width:90vw;max-height:90vh;border-radius:var(--radius);object-fit:contain">
+    <button style="position:absolute;top:1rem;right:1.5rem;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer" onclick="closeLightbox()">✕</button>
+  </div>
+
+  <div class="divider"></div>
+
+    <!-- AI VIDEO SECTION -->
+  <section class="section" style="padding-top:3.5rem;padding-bottom:3.5rem">
+    <div class="section-heading center">
+      <div class="tag" style="background:rgba(0,212,170,0.1);color:var(--accent3);border-color:rgba(0,212,170,0.25)">🎬 AI Video</div>
+      <h2 data-i18n="vid_h2">Why A/B Testing Works</h2>
+      <p style="color:var(--text2)" data-i18n="vid_sub">Stop guessing — let data decide. Here's the power behind every experiment.</p>
+    </div>
+    <div style="max-width:860px;margin:0 auto;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:var(--card-shadow);background:#000;position:relative">
+      <video controls autoplay muted loop playsinline
+             style="width:100%;display:block;max-height:520px;object-fit:cover"
+             src="ai_video.mov">
+        Your browser does not support the video tag.
+      </video>
+      <div style="position:absolute;top:.75rem;right:.75rem;background:rgba(0,212,170,0.15);border:1px solid rgba(0,212,170,0.3);color:var(--accent3);font-size:.7rem;font-weight:700;padding:.25rem .65rem;border-radius:20px;letter-spacing:.05em">🤖 AI Generated</div>
+    </div>
+  </section>
+
+    <div class="divider"></div>
+
+  <footer>
+    <div class="footer-brand">
+      <div class="footer-logo">Testly.</div>
+      <div class="footer-desc">AI-powered A/B testing for teams that care about evidence over intuition.</div>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#">Features</a><a href="#">Pricing</a><a href="#">Changelog</a><a href="#">Roadmap</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="#">Documentation</a><a href="#">Blog</a><a href="#">Case Studies</a><a href="#">API</a>
+    </div>
+    <div class="footer-col">
+      <h4>Авторы</h4>
+      <a href="#">Абатов Мирас</a><a href="#">Рустемкызы Жансая</a>
+    </div>
+  </footer>
+  <div class="footer-bottom" style="flex-direction:column;align-items:flex-start;gap:.35rem;padding:1.25rem 2.5rem">
+    <div style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:.5rem">
+      <p>© 2026 Testly · Абатов Мирас &amp; Рустемкызы Жансая</p>
+      <p>Made with ♥ for data-driven teams</p>
+    </div>
+    <p style="font-size:.72rem;color:var(--text3)">Дисциплина: ИКТ (Информационно-коммуникационные технологии) · Специальность: Кибербезопасность · Университет Нархоз · 2026–2029</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     PAGE: DASHBOARD
+     ============================================================ -->
+<div class="page" id="page-dashboard">
+  <div class="section">
+    <div class="dash-header">
+      <div>
+        <h2>Experiment Dashboard</h2>
+        <p style="color:var(--text2);font-size:.875rem;margin-top:.2rem">SaaS Landing Page CTA Test · Source: VWO Industry Benchmark 2024</p>
+      </div>
+      <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+        <div class="dash-tabs">
+          <button class="dash-tab active">Overview</button>
+          <button class="dash-tab">Segments</button>
+          <button class="dash-tab">Timeline</button>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showPage('insights',null)">View AI Insights →</button>
+      </div>
+    </div>
+
+    <!-- Data sources -->
+    <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.75rem 1.1rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:.75rem">
+      <span style="font-size:1rem;flex-shrink:0">📊</span>
+      <div style="font-size:.75rem;color:var(--text2);line-height:1.7">
+        <strong>Источники данных:</strong>
+        VWO A/B Testing Industry Report 2024 — <a href="https://vwo.com/conversion-rate-optimization/conversion-rate-optimization-statistics/" target="_blank" style="color:var(--accent)">vwo.com →</a> ·
+        Unbounce Conversion Benchmark Report Q4 2024 — <a href="https://unbounce.com/conversion-benchmark-report/" target="_blank" style="color:var(--accent)">unbounce.com →</a> ·
+        Convert.com A/B Testing Stats 2026 — <a href="https://www.convert.com/blog/a-b-testing/ab-testing-stats/" target="_blank" style="color:var(--accent)">convert.com →</a>
+      </div>
+    </div>
+
+    <!-- stat cards -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-icon fi-blue">🖱️</div>
+        <div class="stat-label">Total Clicks</div>
+        <div class="stat-val">14,872</div>
+        <div class="stat-delta delta-up">↑ +31.7% vs prev period</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon fi-purple">🎯</div>
+        <div class="stat-label">Avg Conversion</div>
+        <div class="stat-val">5.4%</div>
+        <div class="stat-delta delta-up">↑ B is +23% higher than A (VWO benchmark: +12% avg)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(245,158,11,0.1)">↩️</div>
+        <div class="stat-label">Avg Bounce Rate</div>
+        <div class="stat-val">38.4%</div>
+        <div class="stat-delta delta-down">↓ B reduced bounce by 12pp</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon fi-teal">📈</div>
+        <div class="stat-label">Statistical Confidence</div>
+        <div class="stat-val text-teal">97.3%</div>
+        <div class="stat-delta delta-up">✓ Statistically significant</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon fi-blue">⏱️</div>
+        <div class="stat-label">Avg Session Duration</div>
+        <div class="stat-val">2m 38s</div>
+        <div class="stat-delta delta-up">↑ +18s longer in variant B</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon fi-purple">💰</div>
+        <div class="stat-label">Est. Revenue Lift</div>
+        <div class="stat-val">+$6.8k</div>
+        <div class="stat-delta delta-up">↑ Projected monthly uplift</div>
+      </div>
+    </div>
+
+    <!-- A/B comparison -->
+    <div style="margin:1.75rem 0 .75rem"><p class="tag">Variant Comparison</p></div>
+    <div class="ab-compare">
+      <div class="ab-card">
+        <h3>Version A</h3>
+        <div class="sub">Control · Original SaaS Landing CTA · Industry avg: 4.4% (Unbounce 2024)</div>
+        <div class="ab-metric"><span class="ab-metric-label">Clicks</span><span class="ab-metric-val">7,041</span></div>
+        <div class="ab-metric"><span class="ab-metric-label">Conversion Rate</span><span class="ab-metric-val" style="color:var(--accent)">4.4%</span></div>
+        <div class="ab-metric"><span class="ab-metric-label">Bounce Rate</span><span class="ab-metric-val" style="color:var(--warn)">46.2%</span></div>
+        <div class="ab-metric"><span class="ab-metric-label">Avg Session</span><span class="ab-metric-val">2m 14s</span></div>
+        <div class="ab-bar-wrap">
+          <div class="ab-bar-label"><span>Conversion progress</span><span>4.4%</span></div>
+          <div class="ab-bar-track"><div class="ab-bar-fill fill-a" style="width:44%"></div></div>
+        </div>
+      </div>
+      <div class="ab-card winner">
+        <h3>Version B</h3>
+        <div class="sub">Variant · Redesigned CTA + social proof · Target: 6.6% median (Unbounce)</div>
+        <div class="ab-metric"><span class="ab-metric-label">Clicks</span><span class="ab-metric-val">7,831</span></div>
+        <div class="ab-metric"><span class="ab-metric-label">Conversion Rate</span><span class="ab-metric-val" style="color:var(--accent2)">5.4%</span></div>
+        <div class="ab-metric"><span class="ab-metric-label">Bounce Rate</span><span class="ab-metric-val" style="color:var(--success)">30.6%</span></div>
+        <div class="ab-metric"><span class="ab-metric-label">Avg Session</span><span class="ab-metric-val">2m 51s</span></div>
+        <div class="ab-bar-wrap">
+          <div class="ab-bar-label"><span>Conversion progress</span><span>5.4%</span></div>
+          <div class="ab-bar-track"><div class="ab-bar-fill fill-b" style="width:54%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI placeholder images -->
+    <div style="margin:1.75rem 0 .75rem"><p class="tag" style="margin:0">AI-Generated Analytics</p></div>
+    <div class="ai-imgs-grid">
+      <div class="ai-img-placeholder"><canvas id="aiChart1"></canvas><div class="ai-img-label"><span>Conversion Funnel</span><span class="ai-badge-pill">AI</span></div></div>
+      <div class="ai-img-placeholder"><canvas id="aiChart2"></canvas><div class="ai-img-label"><span>Traffic Heatmap</span><span class="ai-badge-pill">AI</span></div></div>
+      <div class="ai-img-placeholder"><canvas id="aiChart3"></canvas><div class="ai-img-label"><span>Bounce Trend</span><span class="ai-badge-pill">AI</span></div></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-wrap">
+        <div class="chart-title">Clicks Over Time</div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Version A</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Version B</div>
+        </div>
+        <canvas id="clicksChart" height="200"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Conversion Rate Comparison</div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Version A</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Version B</div>
+        </div>
+        <canvas id="convChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Metrics table -->
+    <div style="margin:1.75rem 0 .75rem"><p class="tag" style="margin:0">Detailed Metrics</p></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Version A</th>
+            <th>Version B</th>
+            <th>Difference</th>
+            <th>Winner</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Total Visitors</td>
+            <td><span class="bar-mini" style="background:var(--accent);width:38px"></span>7,041</td>
+            <td><span class="bar-mini" style="background:var(--accent2);width:50px"></span>7,831</td>
+            <td class="delta-up">+790 (+11.2%)</td>
+            <td><span class="badge badge-b">B</span></td>
+            <td><span class="badge badge-win">Significant</span></td>
+          </tr>
+          <tr>
+            <td>Conversion Rate</td>
+            <td>4.2%</td>
+            <td>5.8%</td>
+            <td class="delta-up">+1.0pp (+22.7%) · Benchmark: +12% avg (VWO)</td>
+            <td><span class="badge badge-b">B</span></td>
+            <td><span class="badge badge-win">Significant</span></td>
+          </tr>
+          <tr>
+            <td>Bounce Rate</td>
+            <td>43.0%</td>
+            <td>31.0%</td>
+            <td class="delta-up">−15.6pp (−33.8%)</td>
+            <td><span class="badge badge-b">B</span></td>
+            <td><span class="badge badge-win">Significant</span></td>
+          </tr>
+          <tr>
+            <td>Avg Session Duration</td>
+            <td>2m 20s</td>
+            <td>2m 38s</td>
+            <td class="delta-up">+37s (+27.6%)</td>
+            <td><span class="badge badge-b">B</span></td>
+            <td><span class="badge badge-win">Significant</span></td>
+          </tr>
+          <tr>
+            <td>Pages per Session</td>
+            <td>2.1</td>
+            <td>2.7</td>
+            <td class="delta-up">+0.7 (+36.8%)</td>
+            <td><span class="badge badge-b">B</span></td>
+            <td><span class="badge badge-run">Running</span></td>
+          </tr>
+          <tr>
+            <td>Add-to-Cart Rate</td>
+            <td>8.3%</td>
+            <td>10.1%</td>
+            <td class="delta-up">+1.6pp (+24.2%) · Src: Unbounce Q4 2024</td>
+            <td><span class="badge badge-b">B</span></td>
+            <td><span class="badge badge-run">Running</span></td>
+          </tr>
+          <tr>
+            <td>Revenue per Visitor</td>
+            <td>$1.24</td>
+            <td>$1.71</td>
+            <td class="delta-up">+$0.47 (+37.9%)</td>
+            <td><span class="badge badge-b">B</span></td>
+            <td><span class="badge badge-win">Significant</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- All experiments table -->
+    <div style="margin:1.75rem 0 .75rem"><p class="tag" style="margin:0">All Experiments</p></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Experiment</th><th>Variants</th><th>Visitors</th><th>Conversion Lift</th><th>Confidence</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Homepage CTA Test</td><td>A / B</td><td>2,780</td><td class="delta-up">+38.1%</td><td class="text-teal">97.3%</td><td><span class="badge badge-win">Winner: B</span></td></tr>
+          <tr><td>Pricing Page Layout</td><td>A / B / C</td><td>5,420</td><td class="delta-up">+12.4%</td><td>91.5%</td><td><span class="badge badge-run">Running</span></td></tr>
+          <tr><td>Checkout Flow Redesign</td><td>A / B</td><td>1,890</td><td class="delta-up">+5.7%</td><td>83.2%</td><td><span class="badge badge-run">Running</span></td></tr>
+          <tr><td>Email Subject Line</td><td>A / B</td><td>12,400</td><td class="delta-up">+22.0%</td><td>99.1%</td><td><span class="badge badge-win">Winner: B</span></td></tr>
+          <tr><td>Onboarding Walkthrough</td><td>A / B</td><td>3,210</td><td class="delta-down">−3.2%</td><td>41.0%</td><td><span class="badge badge-a">Winner: A</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
+
+  <!-- ============================================================
+       NETFLIX REAL CASE STUDY
+       ============================================================ -->
+  <div class="section" style="padding-top:2rem">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div style="width:40px;height:40px;border-radius:10px;background:#003580;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;color:#febb02;font-family:var(--font-display)">B.</div>
+        <div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem">Real A/B Test Case Studies</div>
+          <div style="font-size:.78rem;color:var(--text3)">Booking.com (GoodUI.org, 2019) · Netflix (Netflix Tech Blog, 2017)</div>
+        </div>
+      </div>
+      <div style="margin-left:auto;background:rgba(229,9,20,0.1);border:1px solid rgba(229,9,20,0.25);color:#E50914;font-size:.7rem;font-weight:700;padding:.25rem .7rem;border-radius:20px;letter-spacing:.05em">REAL DATA</div>
+    </div>
+
+    <!-- Two case tabs -->
+    <div style="display:flex;gap:.5rem;margin-bottom:1.5rem">
+      <button id="nfTab1" class="dash-tab active" onclick="showNfCase(1)" style="font-size:.8rem">🔍 Search Form Test</button>
+      <button id="nfTab2" class="dash-tab" onclick="showNfCase(2)" style="font-size:.8rem">🎯 Recommendation Algorithm</button>
+    </div>
+
+    <!-- Case 1: Thumbnail Test -->
+    <div id="nfCase1">
+      <div style="background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:.75rem">
+        <span style="font-size:1rem;flex-shrink:0">📖</span>
+        <div style="font-size:.78rem;color:var(--text2);line-height:1.6">
+          <strong>Источник:</strong> GoodUI.org, Leak #4 — реальные скриншоты теста Booking.com (Feb 4, 2019) ·
+          <a href="https://goodui.org/leaks/booking.com-ab-tested-single-vs-multiple-line-search-forms/" target="_blank" style="color:var(--accent)">goodui.org/leaks →</a>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem" class="ab-explainer-grid">
+
+        <!-- Version B — многострочная (ПРОИГРАЛА) -->
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+          <div style="background:var(--bg4);padding:.65rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:.06em">VERSION B · ВАРИАНТ</span>
+            <span style="font-size:.7rem;color:var(--text3)">Многострочная форма</span>
+          </div>
+          <div style="padding:.85rem">
+            <img src="img_0.png"
+                 alt="Booking.com Version B — многострочная форма поиска с жёлтым фоном"
+                 style="width:100%;border-radius:6px;border:1px solid var(--border);display:block;margin-bottom:.85rem">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+              <div style="text-align:center;background:var(--bg4);padding:.6rem;border-radius:8px">
+                <div style="font-size:1.2rem;font-weight:800;color:var(--warn)">Rejected</div>
+                <div style="font-size:.65rem;color:var(--text3)">Результат теста</div>
+              </div>
+              <div style="text-align:center;background:var(--bg4);padding:.6rem;border-radius:8px">
+                <div style="font-size:.75rem;font-weight:700;color:var(--text2)">Больше полей</div>
+                <div style="font-size:.65rem;color:var(--text3)">Жёлтый фон, соц. доказательство</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Version A — одна строка (ПОБЕДИЛА) -->
+        <div style="background:var(--bg3);border:2px solid rgba(0,212,170,0.4);border-radius:var(--radius);overflow:hidden;position:relative">
+          <div style="position:absolute;top:.5rem;right:.5rem;z-index:2;background:rgba(0,212,170,0.9);color:#000;font-size:.62rem;font-weight:800;padding:.2rem .55rem;border-radius:20px">🏆 WINNER</div>
+          <div style="background:var(--bg4);padding:.65rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:.72rem;font-weight:700;color:var(--accent2);letter-spacing:.06em">VERSION A · CONTROL</span>
+            <span style="font-size:.7rem;color:var(--text3)">Одна горизонтальная строка</span>
+          </div>
+          <div style="padding:.85rem">
+            <img src="img_1.png"
+                 alt="Booking.com Version A — одна горизонтальная строка поиска"
+                 style="width:100%;border-radius:6px;border:2px solid rgba(0,212,170,0.3);display:block;margin-bottom:.85rem">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+              <div style="text-align:center;background:rgba(0,212,170,0.08);padding:.6rem;border-radius:8px;border:1px solid rgba(0,212,170,0.2)">
+                <div style="font-size:1.2rem;font-weight:800;color:var(--accent3)">Implemented</div>
+                <div style="font-size:.65rem;color:var(--text3)">Внедрено глобально</div>
+              </div>
+              <div style="text-align:center;background:rgba(0,212,170,0.08);padding:.6rem;border-radius:8px;border:1px solid rgba(0,212,170,0.2)">
+                <div style="font-size:.75rem;font-weight:700;color:var(--accent3)">Меньше шума</div>
+                <div style="font-size:.65rem;color:var(--text3)">Компактно, минимум усилий</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key findings from the article -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem">
+        <div style="font-size:.8rem;font-weight:700;margin-bottom:.75rem">🔬 Ключевые отличия (из оригинального разбора GoodUI)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.65rem">
+          <div style="background:var(--bg4);border-radius:8px;padding:.65rem .8rem;font-size:.74rem;color:var(--text2)">
+            <strong style="color:var(--text)">Заголовок</strong><br>В версии B крупнее и выше — больше визуального веса
+          </div>
+          <div style="background:var(--bg4);border-radius:8px;padding:.65rem .8rem;font-size:.74rem;color:var(--text2)">
+            <strong style="color:var(--text)">Форма поиска</strong><br>B — многострочная с жёлтым фоном. A — одна строка, компактная
+          </div>
+          <div style="background:var(--bg4);border-radius:8px;padding:.65rem .8rem;font-size:.74rem;color:var(--text2)">
+            <strong style="color:var(--text)">Соц. доказательство</strong><br>B показывал "1 млн рекомендаций в месяц" — но не помогло
+          </div>
+          <div style="background:var(--bg4);border-radius:8px;padding:.65rem .8rem;font-size:.74rem;color:var(--text2)">
+            <strong style="color:var(--text)">Вывод</strong><br>Меньше визуального шума = меньше воспринимаемых усилий = больше конверсий
+          </div>
+        </div>
+      </div>
+
+      <!-- Result note -->
+      <div style="background:rgba(79,125,255,0.07);border:1px solid var(--border2);border-radius:var(--radius);padding:1rem 1.25rem;font-size:.78rem;color:var(--text2);line-height:1.7">
+        ⚡ <strong>Неожиданный результат:</strong> Несмотря на то что версия B выглядела богаче — жёлтый фон, соц. доказательство, крупный заголовок — победила минималистичная версия A. Это классический пример того что <em>меньше = лучше</em> в UX: пользователь воспринимает компактную форму как "проще заполнить" и охотнее начинает поиск. Booking.com внедрил Version A глобально (подтверждено 6 марта 2019).
+      </div>
+    </div></div>
+
+    <!-- Case 2: Recommendation Algorithm -->
+    <div id="nfCase2" style="display:none">
+      <div style="background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:.75rem">
+        <span style="font-size:1rem;flex-shrink:0">📖</span>
+        <div style="font-size:.78rem;color:var(--text2);line-height:1.6">
+          <strong>Источник:</strong> Netflix Technology Blog — "Artwork Personalization at Netflix" (2017) ·
+          <a href="https://netflixtechblog.com/artwork-personalization-at-netflix-c589f074ad76" target="_blank" style="color:var(--accent)">netflixtechblog.com →</a>
+          · McKinsey: Netflix recommendation engine valued at $1B+/year
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem" class="ab-explainer-grid">
+
+        <!-- Version A -->
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+          <div style="background:var(--bg4);padding:.65rem 1rem;border-bottom:1px solid var(--border)">
+            <span style="font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:.06em">VERSION A · GENERIC RECOMMENDATIONS</span>
+          </div>
+          <div style="padding:1.25rem">
+            <div style="font-size:.8rem;color:var(--text2);margin-bottom:.85rem">Algorithm: Popularity-based (same for all users)</div>
+            <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem">
+              <div style="background:var(--bg4);border-radius:6px;padding:.45rem .7rem;font-size:.75rem;color:var(--text2)">🎬 Trending Now #1</div>
+              <div style="background:var(--bg4);border-radius:6px;padding:.45rem .7rem;font-size:.75rem;color:var(--text2)">🎬 Trending Now #2</div>
+              <div style="background:var(--bg4);border-radius:6px;padding:.45rem .7rem;font-size:.75rem;color:var(--text2)">🎬 Trending Now #3</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+              <div style="text-align:center;background:var(--bg4);padding:.6rem;border-radius:8px">
+                <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--accent)">1.4 hr</div>
+                <div style="font-size:.65rem;color:var(--text3)">Daily watch time</div>
+              </div>
+              <div style="text-align:center;background:var(--bg4);padding:.6rem;border-radius:8px">
+                <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--warn)">5.2%</div>
+                <div style="font-size:.65rem;color:var(--text3)">Monthly churn</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Version B -->
+        <div style="background:var(--bg3);border:2px solid rgba(0,212,170,0.4);border-radius:var(--radius);overflow:hidden;position:relative">
+          <div style="position:absolute;top:.6rem;right:.6rem;background:rgba(0,212,170,0.15);border:1px solid rgba(0,212,170,0.3);color:var(--accent3);font-size:.65rem;font-weight:700;padding:.2rem .55rem;border-radius:20px">🏆 WINNER</div>
+          <div style="background:var(--bg4);padding:.65rem 1rem;border-bottom:1px solid var(--border)">
+            <span style="font-size:.72rem;font-weight:700;color:var(--accent2);letter-spacing:.06em">VERSION B · PERSONALIZED AI</span>
+          </div>
+          <div style="padding:1.25rem">
+            <div style="font-size:.8rem;color:var(--text2);margin-bottom:.85rem">Algorithm: Viewing history + behavioural signals</div>
+            <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem">
+              <div style="background:rgba(79,125,255,0.1);border-radius:6px;padding:.45rem .7rem;font-size:.75rem;color:var(--accent)">✦ Based on your history: Drama</div>
+              <div style="background:rgba(79,125,255,0.1);border-radius:6px;padding:.45rem .7rem;font-size:.75rem;color:var(--accent)">✦ Because you watched: Thriller</div>
+              <div style="background:rgba(79,125,255,0.1);border-radius:6px;padding:.45rem .7rem;font-size:.75rem;color:var(--accent)">✦ Top pick for you this week</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+              <div style="text-align:center;background:rgba(0,212,170,0.08);padding:.6rem;border-radius:8px;border:1px solid rgba(0,212,170,0.2)">
+                <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--accent3)">1.89 hr</div>
+                <div style="font-size:.65rem;color:var(--text3)">Daily watch time</div>
+              </div>
+              <div style="text-align:center;background:rgba(0,212,170,0.08);padding:.6rem;border-radius:8px;border:1px solid rgba(0,212,170,0.2)">
+                <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--accent3)">3.1%</div>
+                <div style="font-size:.65rem;color:var(--text3)">Monthly churn</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result bar -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;text-align:center">
+        <div>
+          <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent3)">+35%</div>
+          <div style="font-size:.75rem;color:var(--text3)">More content watched</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent3)">−40%</div>
+          <div style="font-size:.75rem;color:var(--text3)">Churn rate drop</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent3)">$1B+</div>
+          <div style="font-size:.75rem;color:var(--text3)">Annual value saved</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--text2)">99%+</div>
+          <div style="font-size:.75rem;color:var(--text3)">Statistical confidence</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center">
+          <div style="font-size:.75rem;color:var(--text2);line-height:1.5;text-align:left"><strong>Conclusion:</strong> Personalized AI recommendations dramatically outperform generic ones. Netflix estimates its recommendation engine saves $1B+ annually by reducing subscriber churn.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer style="grid-template-columns:1.5fr 1fr 1fr;display:grid;gap:2rem;border-top:1px solid var(--border);background:var(--bg2);padding:2rem 2.5rem">
+    <div class="footer-brand"><div class="footer-logo">Testly.</div><div class="footer-desc">AI-powered A/B testing.</div></div>
+    <div class="footer-col"><h4 data-i18n="footer_nav">Navigation</h4><a href="#" onclick="showPage('home',null)">Home</a><a href="#" onclick="showPage('insights',null)">AI Insights</a><a href="#" onclick="showPage('about',null)">About A/B</a><a href="#" onclick="showPage('contact',null)">Contact</a></div>
+    <div class="footer-col"><h4>Авторы</h4><a href="#">Абатов Мирас</a><a href="#">Рустемкызы Жансая</a><a href="#" style="font-size:.75rem;color:var(--text3)">Кибербезопасность · Нархоз</a><a href="#" style="font-size:.75rem;color:var(--text3)">ИКТ · 2026–2029</a></div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     PAGE: AI INSIGHTS
+     ============================================================ -->
+<div class="page" id="page-insights">
+  <div class="section">
+    <div style="margin-bottom:1.5rem">
+      <div class="tag">🧠 AI Analysis</div>
+      <h2 style="font-size:1.9rem;letter-spacing:-0.02em;margin-bottom:.4rem">AI Insights</h2>
+      <p style="color:var(--text2)">Automatically generated analysis of your Homepage CTA experiment</p>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:.5rem;margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:0">
+      <button id="insTab1" onclick="switchInsTab(1)" style="padding:.6rem 1.2rem;font-size:.82rem;font-weight:700;background:none;border:none;border-bottom:2px solid var(--accent);color:var(--accent);cursor:pointer;margin-bottom:-1px">📊 Experiment Analysis</button>
+      <button id="insTab2" onclick="switchInsTab(2)" style="padding:.6rem 1.2rem;font-size:.82rem;font-weight:700;background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);cursor:pointer;margin-bottom:-1px">✨ AI Text Analyzer</button>
+      <button id="insTab3" onclick="switchInsTab(3)" style="padding:.6rem 1.2rem;font-size:.82rem;font-weight:700;background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);cursor:pointer;margin-bottom:-1px">💬 AI Chat</button>
+    </div>
+
+    <!-- Tab 1: Existing Analysis -->
+    <div id="insContent1">
+    <div class="insights-layout">
+      <div class="insight-cards">
+        <!-- AI-generated placeholders -->
+        <div style="margin-bottom:.25rem"><p class="tag" style="margin:0">AI-Generated Analytics</p></div>
+        <div class="ai-imgs-grid" style="margin-bottom:1rem">
+          <div class="ai-img-placeholder"><canvas id="aiInsightChart1"></canvas><div class="ai-img-label"><span>User Flow Analysis</span><span class="ai-badge-pill">AI</span></div></div>
+          <div class="ai-img-placeholder"><canvas id="aiInsightChart2"></canvas><div class="ai-img-label"><span>Statistical Distribution</span><span class="ai-badge-pill">AI</span></div></div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-head">
+            <div class="insight-icon blue">🏆</div>
+            <div><div class="insight-title" data-i18n="insight1_title">Clear Winner Identified</div><div class="insight-subtitle">Statistical significance: 97.3% · Confidence level: High</div></div>
+          </div>
+          <div class="insight-body">
+            <strong>Version B is the clear winner</strong> with a statistically significant improvement across all primary and secondary metrics. The redesigned CTA with social proof elements delivered a <strong>+22.7% increase in conversion rate</strong> (4.4% → 5.4%) and a <strong>33.8% reduction in bounce rate</strong> (46.2% → 30.6%). Industry benchmark: avg CRO lift is +12% (VWO 2024). At 97.3% confidence, there is less than a 3% probability that this result is due to chance. <strong>Recommendation: Ship Version B immediately.</strong>
+          </div>
+          <div class="insight-actions">
+            <button class="btn btn-primary btn-sm" data-i18n="insight1_btn1">Ship Version B</button>
+            <button class="btn btn-ghost btn-sm">Download Report</button>
+          </div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-head">
+            <div class="insight-icon purple">📊</div>
+            <div><div class="insight-title" data-i18n="insight2_title">Traffic & Engagement Analysis</div><div class="insight-subtitle">Click volume · Session depth · Scroll behavior</div></div>
+          </div>
+          <div class="insight-body">
+            Version B attracted <strong>31.7% more clicks</strong> (1,580 vs 1,200), suggesting the new CTA copy also has stronger draw from upstream pages. Average session duration increased by <strong>18 seconds</strong>, and pages-per-session rose from 2.1 to 2.7. This indicates <strong>higher intent</strong> in the Variant B audience — users aren't just converting more, they're exploring more deeply before deciding.
+          </div>
+          <div class="insight-actions">
+            <button class="btn btn-ghost btn-sm">Explore Segments</button>
+          </div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-head">
+            <div class="insight-icon teal">💡</div>
+            <div><div class="insight-title" data-i18n="insight3_title">What Drove the Improvement?</div><div class="insight-subtitle">AI causal attribution analysis</div></div>
+          </div>
+          <div class="insight-body">
+            Based on user session recordings and scroll heatmaps, the AI attributes the conversion lift to three factors: <br><br>
+            1. <strong>Social proof block</strong> — Users who saw the review count (n=412 reviews) had a 2.3x higher conversion rate than those who scrolled past it.<br>
+            2. <strong>CTA button color shift</strong> (blue → teal) — Eye-tracking data suggests a 40% longer fixation time on the new button.<br>
+            3. <strong>Headline reframe</strong> — "Start your free trial" outperformed "Get started" by reducing perceived commitment.
+          </div>
+          <div class="insight-actions">
+            <button class="btn btn-ghost btn-sm">View Session Recordings</button>
+            <button class="btn btn-ghost btn-sm">Heatmap Analysis</button>
+          </div>
+        </div>
+
+        <div class="insight-card">
+          <div class="insight-head">
+            <div class="insight-icon warn">⚠️</div>
+            <div><div class="insight-title" data-i18n="insight4_title">Potential Risks & Considerations</div><div class="insight-subtitle">Before you ship, review these flags</div></div>
+          </div>
+          <div class="insight-body">
+            <strong>1. Novelty effect:</strong> A portion of the uplift may be attributed to the novelty of the new design. The AI estimates this at ~8–12% of the observed lift. Consider running for 2 more weeks to validate.<br><br>
+            <strong>2. Segment heterogeneity:</strong> Mobile users show a smaller lift (+18%) vs desktop (+52%). Ensure the redesign is well-optimized for mobile screens before full rollout.<br><br>
+            <strong>3. Seasonal timing:</strong> This test ran over a holiday period. Validate results against a non-holiday baseline segment.
+          </div>
+          <div class="insight-actions">
+            <button class="btn btn-outline btn-sm">Extend Test</button>
+            <button class="btn btn-ghost btn-sm">Mobile Segment Report</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chatbot moved to tab 3 -->
+      <div class="chatbot-panel" style="display:none" id="chatPanelOld"></div>
+    </div>
+    </div><!-- end insContent1 -->
+
+    <!-- Tab 2: AI Text Analyzer -->
+    <div id="insContent2" style="display:none">
+      <div style="max-width:760px;margin:0 auto">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem">
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
+            <div style="width:38px;height:38px;border-radius:10px;background:rgba(124,83,255,0.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">✨</div>
+            <div>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:1rem">AI Copy Analyzer</div>
+              <div style="font-size:.75rem;color:var(--text3)">Введи два варианта текста — AI предскажет победителя A/B теста</div>
+            </div>
+          </div>
+
+          <!-- Context field -->
+          <div style="margin-bottom:1rem">
+            <label style="font-size:.75rem;font-weight:700;color:var(--text2);display:block;margin-bottom:.4rem">Контекст (где используется текст)</label>
+            <input id="analyzerContext" class="form-input" placeholder="Например: кнопка CTA на лендинге SaaS продукта для малого бизнеса" style="width:100%;box-sizing:border-box">
+          </div>
+
+          <!-- Version A & B inputs -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem" class="ab-explainer-grid">
+            <div>
+              <label style="font-size:.75rem;font-weight:700;color:var(--accent);display:block;margin-bottom:.4rem">VERSION A</label>
+              <input id="analyzerA" class="form-input" placeholder="Например: Записаться" style="width:100%;box-sizing:border-box">
+            </div>
+            <div>
+              <label style="font-size:.75rem;font-weight:700;color:var(--accent2);display:block;margin-bottom:.4rem">VERSION B</label>
+              <input id="analyzerB" class="form-input" placeholder="Например: Попробовать бесплатно" style="width:100%;box-sizing:border-box">
+            </div>
+          </div>
+
+          <!-- Analyze button -->
+          <button class="btn btn-primary" onclick="runAnalyzer()" id="analyzerBtn" style="width:100%">
+            ✨ Проанализировать с AI →
+          </button>
+        </div>
+
+        <!-- Result area -->
+        <div id="analyzerResult" style="display:none">
+          <!-- Winner badge -->
+          <div id="analyzerWinner" style="background:var(--bg3);border:2px solid rgba(0,212,170,0.4);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;text-align:center">
+            <div style="font-size:.75rem;font-weight:700;color:var(--text3);margin-bottom:.4rem">ПРЕДСКАЗАННЫЙ ПОБЕДИТЕЛЬ</div>
+            <div id="winnerLabel" style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent3)"></div>
+            <div id="winnerProb" style="font-size:.8rem;color:var(--text2);margin-top:.3rem"></div>
+          </div>
+
+          <!-- AI analysis -->
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem">
+            <div style="font-size:.78rem;font-weight:700;color:var(--text2);margin-bottom:.75rem">🧠 Анализ от AI</div>
+            <div id="analyzerText" style="font-size:.82rem;color:var(--text);line-height:1.75"></div>
+          </div>
+
+          <!-- Try again -->
+          <button class="btn btn-ghost" onclick="resetAnalyzer()" style="margin-top:1rem;width:100%">↺ Попробовать другие варианты</button>
+        </div>
+
+        <!-- Loading state -->
+        <div id="analyzerLoading" style="display:none;text-align:center;padding:2rem">
+          <div class="typing-indicator" style="justify-content:center;margin-bottom:.75rem">
+            <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+          </div>
+          <div style="font-size:.82rem;color:var(--text3)">AI анализирует варианты...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Chat -->
+    <div id="insContent3" style="display:none">
+      <div style="max-width:760px;margin:0 auto">
+        <div class="chatbot-panel" style="position:static;height:600px">
+          <div class="chat-header">
+            <div class="chat-avatar">🤖</div>
+            <div><div class="chat-name" data-i18n="chat_name">Testly AI</div><div class="chat-status" data-i18n="chat_status">● Online · Analyzing your experiment</div></div>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="msg">
+              <div class="msg-avatar">🤖</div>
+              <div class="msg-bubble" data-i18n="chat_welcome">Hi! I'm your Testly AI assistant. I've analyzed your <strong>Homepage CTA Test</strong>. Version B is the winner with 97.3% confidence. What would you like to know?</div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <div class="chat-suggestions" id="chatSuggestions">
+              <span class="sugg-chip" onclick="sendSugg(this)" data-i18n="sugg1">What does Version B do better?</span>
+              <span class="sugg-chip" onclick="sendSugg(this)" data-i18n="sugg2">Should I ship now?</span>
+              <span class="sugg-chip" onclick="sendSugg(this)" data-i18n="sugg3">Explain the bounce rate drop</span>
+              <span class="sugg-chip" onclick="sendSugg(this)" data-i18n="sugg4">Mobile vs desktop results?</span>
+            </div>
+            <div class="chat-input-row">
+              <input class="chat-input" id="chatInput" placeholder="Ask about your experiment…" data-i18n="chat_placeholder" onkeydown="if(event.key==='Enter')sendChat()">
+              <button class="chat-send" onclick="sendChat()">➤</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <footer>
+    <div class="footer-brand"><div class="footer-logo">Testly.</div><div class="footer-desc">AI-powered A/B testing.</div></div>
+    <div class="footer-col"><h4>Navigation</h4><a href="#" onclick="showPage('home',null)">Home</a><a href="#" onclick="showPage('dashboard',null)">Dashboard</a><a href="#" onclick="showPage('about',null)">About A/B</a><a href="#" onclick="showPage('contact',null)">Contact</a></div>
+    <div class="footer-col"><h4>Авторы</h4><a href="#">Абатов Мирас</a><a href="#">Рустемкызы Жансая</a><a href="#" style="font-size:.75rem;color:var(--text3)">Кибербезопасность · Нархоз</a><a href="#" style="font-size:.75rem;color:var(--text3)">ИКТ · 2026–2029</a></div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     PAGE: ABOUT A/B TESTING
+     ============================================================ -->
+<div class="page" id="page-about">
+  <div class="about-hero">
+    <div class="tag">Learn</div>
+    <h1 data-i18n="about_h1">What is A/B Testing?</h1>
+    <p data-i18n="about_sub">The complete guide to running statistically sound experiments that drive real business growth.</p>
+  </div>
+
+  <div class="section">
+    <div class="stats-banner">
+      <div><div class="banner-val text-grad">71%</div><div class="banner-lbl">of companies run A/B tests regularly</div></div>
+      <div><div class="banner-val text-grad">20%</div><div class="banner-lbl">avg conversion lift from well-run tests</div></div>
+      <div><div class="banner-val text-grad">$92</div><div class="banner-lbl">earned for every $1 spent on optimization</div></div>
+      <div><div class="banner-val text-grad">5x</div><div class="banner-lbl">faster decision-making with data</div></div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-heading">
+      <div class="tag">Process</div>
+      <h2 data-i18n="about_process_h">How A/B Testing Works</h2>
+      <p data-i18n="about_process_sub">Four clear stages from idea to decision.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">01</div><div class="feature-icon fi-blue">💡</div><h3>Form a Hypothesis</h3><p>Identify what you want to improve (e.g., conversion rate), propose a change, and define a measurable success metric.</p></div>
+      <div class="step-card"><div class="step-num">02</div><div class="feature-icon fi-purple">🔀</div><h3>Split Your Traffic</h3><p>Randomly assign visitors to control (A) and variant (B) groups. Random assignment is key to eliminating selection bias.</p></div>
+      <div class="step-card"><div class="step-num">03</div><div class="feature-icon fi-teal">📏</div><h3>Collect Data</h3><p>Run the experiment long enough to gather a statistically meaningful sample. Stopping too early leads to false positives.</p></div>
+      <div class="step-card"><div class="step-num">04</div><div class="feature-icon fi-blue">✅</div><h3>Analyze & Decide</h3><p>Use statistical significance (p-value &lt; 0.05) to determine if results are real. Then ship the winner or iterate.</p></div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-heading">
+      <div class="tag">Key Concepts</div>
+      <h2 data-i18n="concepts_h">Statistical Foundations</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><h3>Statistical Significance</h3><p>A result is "statistically significant" when it's unlikely to have occurred by random chance. The industry standard threshold is 95% confidence (p &lt; 0.05).</p></div>
+      <div class="feature-card"><h3>Sample Size</h3><p>Larger samples produce more reliable results. Use a sample size calculator before starting to ensure your test has enough power to detect meaningful differences.</p></div>
+      <div class="feature-card"><h3>Minimum Detectable Effect</h3><p>The smallest improvement you want to be able to detect. Setting this helps calculate required sample size. Typically set between 5–20%.</p></div>
+      <div class="feature-card"><h3>Type I vs Type II Error</h3><p>Type I (false positive) declares a winner when there is none. Type II (false negative) misses a real improvement. Both are managed through confidence and power settings.</p></div>
+      <div class="feature-card"><h3>Novelty Effect</h3><p>A temporary boost from the change being "new." Mitigate by running tests for full business cycles (at least 2 weeks) and comparing returning vs new users.</p></div>
+      <div class="feature-card"><h3>Simpson's Paradox</h3><p>A trend that appears in grouped data can disappear or reverse when the data is combined. Always segment results by key dimensions to avoid misleading conclusions.</p></div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-top:0">
+    <div class="section-heading">
+      <div class="tag">FAQ</div>
+      <h2 data-i18n="faq_h">Frequently Asked Questions</h2>
+    </div>
+    <div class="faq">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How long should I run an A/B test? <span class="arrow">▼</span></button>
+        <div class="faq-a">Run your test for at least 1–2 full business cycles (usually 1–2 weeks minimum). Never stop based on early results — "peeking" dramatically increases false positive rates. Use a predetermined sample size based on your expected traffic and minimum detectable effect.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What's the difference between A/B and multivariate testing? <span class="arrow">▼</span></button>
+        <div class="faq-a">A/B testing compares two versions of a single element. Multivariate testing (MVT) tests multiple elements simultaneously to find the best combination. MVT requires significantly more traffic to reach significance and is harder to interpret. Start with A/B and graduate to MVT once you have high-traffic pages.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How much traffic do I need? <span class="arrow">▼</span></button>
+        <div class="faq-a">It depends on your baseline conversion rate and the lift you want to detect. As a rough guide: to detect a 10% relative lift on a 5% conversion rate, you need roughly 5,000 visitors per variant. Use our built-in sample size calculator for precise numbers.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Can I run multiple tests at the same time? <span class="arrow">▼</span></button>
+        <div class="faq-a">Yes, but with caution. Tests on different pages or completely independent elements can run simultaneously. Tests on overlapping user journeys can interfere with each other. Testly's collision detection feature automatically flags potentially interacting experiments.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What if my results are not statistically significant? <span class="arrow">▼</span></button>
+        <div class="faq-a">A non-significant result is still valuable — it means the change you tested likely doesn't have a meaningful impact. Don't iterate on non-winners just because of underpowered tests. Instead, reassess your hypothesis, gather qualitative data (user interviews, session recordings), and form a stronger hypothesis for the next test.</div>
+      </div>
+    </div>
+  </div>
+  <footer style="grid-template-columns:1.5fr 1fr 1fr;display:grid;gap:2rem;border-top:1px solid var(--border);background:var(--bg2);padding:2rem 2.5rem">
+    <div class="footer-brand"><div class="footer-logo">Testly.</div><div class="footer-desc">AI-powered A/B testing.</div></div>
+    <div class="footer-col"><h4>Navigation</h4><a href="#" onclick="showPage('home',null)">Home</a><a href="#" onclick="showPage('dashboard',null)">Dashboard</a><a href="#" onclick="showPage('contact',null)">Contact</a></div>
+    <div class="footer-col"><h4>Авторы</h4><a href="#">Абатов Мирас</a><a href="#">Рустемкызы Жансая</a><a href="#" style="font-size:.75rem;color:var(--text3)">Кибербезопасность · Нархоз</a><a href="#" style="font-size:.75rem;color:var(--text3)">ИКТ · 2026–2029</a></div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     PAGE: CONTACT
+     ============================================================ -->
+<div class="page" id="page-contact">
+  <div class="section">
+    <div class="section-heading center">
+      <div class="tag" data-i18n="contact_tag">Get in touch</div>
+      <h2 data-i18n="contact_h2">Contact Us</h2>
+      <p data-i18n="contact_sub">Questions, demos, or enterprise inquiries — we respond within 1 business day.</p>
+    </div>
+    <div class="contact-layout">
+      <div class="contact-info">
+        <h2>Let's talk experimentation</h2>
+        <p>Whether you're just getting started with A/B testing or looking to scale your program, our team is here to help.</p>
+        <div class="contact-details">
+          <div class="contact-detail">
+            <div class="contact-detail-icon">📧</div>
+            <div><div class="contact-detail-title">Email</div><div class="contact-detail-val">hello@testly.io</div></div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-icon">💬</div>
+            <div><div class="contact-detail-title">Live Chat</div><div class="contact-detail-val">Available Mon–Fri, 9am–6pm EST</div></div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-icon">📅</div>
+            <div><div class="contact-detail-title">Book a Demo</div><div class="contact-detail-val">30-minute product walkthrough</div></div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-icon">🏢</div>
+            <div><div class="contact-detail-title">Office</div><div class="contact-detail-val">340 Pine St, Suite 800, San Francisco, CA</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form-card">
+        <h3 style="font-size:1.1rem;margin-bottom:1.25rem">Send us a message</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div class="form-group"><label>First name</label><input class="form-input" placeholder="Alex"></div>
+          <div class="form-group"><label>Last name</label><input class="form-input" placeholder="Chen"></div>
+        </div>
+        <div class="form-group"><label>Work email</label><input class="form-input" type="email" placeholder="alex@company.com"></div>
+        <div class="form-group"><label data-i18n="footer_authors">Authors</label><input class="form-input" placeholder="Acme Inc."></div>
+        <div class="form-group">
+          <label>Topic</label>
+          <select class="form-input">
+            <option>General inquiry</option>
+            <option>Product demo request</option>
+            <option>Enterprise pricing</option>
+            <option>Technical support</option>
+            <option>Partnership</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Message</label><textarea class="form-input" placeholder="Tell us what you're working on…"></textarea></div>
+        <button class="btn btn-primary" style="width:100%" onclick="submitForm()">Send Message →</button>
+        <div class="form-success" id="formSuccess">✓ Message sent! We'll get back to you within 1 business day.</div>
+      </div>
+    </div>
+  </div>
+  <footer style="grid-template-columns:1.5fr 1fr 1fr;display:grid;gap:2rem;border-top:1px solid var(--border);background:var(--bg2);padding:2rem 2.5rem">
+    <div class="footer-brand"><div class="footer-logo">Testly.</div><div class="footer-desc">AI-powered A/B testing.</div></div>
+    <div class="footer-col"><h4>Navigation</h4><a href="#" onclick="showPage('home',null)">Home</a><a href="#" onclick="showPage('dashboard',null)">Dashboard</a><a href="#" onclick="showPage('insights',null)">AI Insights</a></div>
+    <div class="footer-col"><h4>Авторы</h4><a href="#">Абатов Мирас</a><a href="#">Рустемкызы Жансая</a><a href="#" style="font-size:.75rem;color:var(--text3)">Кибербезопасность · Нархоз</a><a href="#" style="font-size:.75rem;color:var(--text3)">ИКТ · 2026–2029</a></div>
+  </footer>
+</div>
+
+<!-- Back to top -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+
+<!-- Music Toggle (floating) -->
+<div class="music-bar" id="musicBar">
+  <div class="music-eq"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="music-info"><strong id="musicTrack">Focus Flow</strong><span>Lo-fi · Ambient</span></div>
+  <button class="music-btn" id="musicToggle" onclick="toggleMusic()" aria-label="Toggle music">▶</button>
+</div>
+
+<script>
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+window.showPage = function(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-links-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-links-btn').forEach(b => {
+      if (b.textContent.toLowerCase().includes(id === 'about' ? 'a/b' : id === 'insights' ? 'ai' : id)) b.classList.add('active');
+    });
+  }
+  window.scrollTo(0, 0);
+  if (id === 'dashboard') initDashCharts();
+  if (id === 'insights') initInsightCharts();
+}
+
+window.toggleMenu = function() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+/* ============================================================
+   MUSIC TOGGLE
+   ============================================================ */
+
+const trackList = [
+  { name: 'Grid of Rain', artist: 'AI Generated · Suno', src: 'Grid_of_Rain.mp3' },
+  { name: 'Focus Flow',   artist: 'AI Generated · Suno', src: 'Focus_Flow.mp3' }
+];
+let trackIdx = 0, isPlaying = false;
+let audioObj = new Audio();
+audioObj.loop = false;
+audioObj.volume = 0.5;
+audioObj.addEventListener('ended', () => { trackIdx = (trackIdx + 1) % trackList.length; loadTrack(trackIdx); audioObj.play(); });
+
+window.loadTrack = function(idx) {
+  audioObj.src = trackList[idx].src;
+  document.getElementById('musicTrack').textContent = trackList[idx].name;
+  const sub = document.querySelector('.music-info span');
+  if (sub) sub.textContent = trackList[idx].artist;
+}
+
+window.toggleMusic = function() {
+  const bar = document.getElementById('musicBar');
+  const btn = document.getElementById('musicToggle');
+  if (!audioObj.src || audioObj.src === window.location.href) loadTrack(trackIdx);
+  if (isPlaying) {
+    audioObj.pause();
+    isPlaying = false;
+    bar.classList.remove('playing');
+    btn.textContent = '▶';
+  } else {
+    audioObj.play().then(() => {
+      isPlaying = true;
+      bar.classList.add('playing');
+      btn.textContent = '⏸';
+    }).catch(e => console.warn('Audio play failed:', e));
+  }
+}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+window.toggleFaq = function(btn) {
+  const a = btn.nextElementSibling;
+  const isOpen = a.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.faq-q').forEach(el => el.classList.remove('open'));
+  if (!isOpen) { a.classList.add('open'); btn.classList.add('open'); }
+}
+
+/* ============================================================
+   CONTACT FORM
+   ============================================================ */
+window.submitForm = function() {
+  const s = document.getElementById('formSuccess');
+  s.style.display = 'block';
+  setTimeout(() => { s.style.display = 'none'; }, 5000);
+}
+
+/* ============================================================
+   CHATBOT — OpenRouter AI (free tier)
+   ============================================================ */
+const OR_KEY = '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';
+const OR_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
+const SYSTEM_CONTEXT = `You are Testly AI, an expert A/B testing analyst built into the Testly platform.
+You help users understand their A/B test results, statistical significance, and growth strategies.
+The platform currently shows a Homepage CTA experiment: Version A (control) has 4.4% conversion and 46.2% bounce rate; Version B (variant) has 5.4% conversion and 30.6% bounce rate, with 97.3% statistical confidence. Data sourced from VWO industry benchmarks 2024 and Unbounce Q4 2024 report.
+Keep answers concise (2-4 sentences), practical, and data-driven. Use bold for key numbers. Respond in the same language the user writes in.`;
+
+const chatHistory = [{ role: 'system', content: SYSTEM_CONTEXT }];
+
+window.appendMsg = function(text, isUser) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg' + (isUser ? ' user' : '');
+  div.innerHTML = `<div class="msg-avatar">${isUser ? '👤' : '🤖'}</div><div class="msg-bubble">${text}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+window.showTyping = function() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg'; div.id = 'typingIndicator';
+  div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+window.removeTyping = function() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+window.callAI = async function(userMsg) {
+  chatHistory.push({ role: 'user', content: userMsg });
+  const res = await fetch(OR_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OR_KEY}`,
+      'HTTP-Referer': 'https://testly.io',
+      'X-Title': 'Testly AI'
+    },
+    body: JSON.stringify({
+      model: 'meta-llama/llama-3.2-3b-instruct:free',
+      messages: chatHistory
+    })
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('OpenRouter error:', res.status, err);
+    throw new Error('API error ' + res.status);
+  }
+  const data = await res.json();
+  const reply = data?.choices?.[0]?.message?.content || 'Sorry, no response received.';
+  chatHistory.push({ role: 'assistant', content: reply });
+  return reply;
+}
+
+window.sendChat = async function() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.disabled = true;
+  appendMsg(text, true);
+  showTyping();
+  try {
+    const reply = await callAI(text);
+    removeTyping();
+    appendMsg(reply, false);
+  } catch (e) {
+    removeTyping();
+    appendMsg('⚠️ Connection error. Please try again.', false);
+  }
+  input.disabled = false;
+  input.focus();
+}
+
+window.sendSugg = async function(el) {
+  const text = el.textContent;
+  el.parentElement.style.display = 'none';
+  appendMsg(text, true);
+  showTyping();
+  try {
+    const reply = await callAI(text);
+    removeTyping();
+    appendMsg(reply, false);
+  } catch (e) {
+    removeTyping();
+    appendMsg('⚠️ Connection error. Please try again.', false);
+  }
+}
+
+/* ============================================================
+   CHARTS — Hero
+   ============================================================ */
+window.drawHeroChart = function() {
+  const canvas = document.getElementById('heroChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio || 800;
+  canvas.height = 140 * (window.devicePixelRatio || 1);
+  ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+  const W = canvas.offsetWidth || 800, H = 140;
+  const dataA = [80,95,110,105,125,118,130,122,140,135,155,160];
+  const dataB = [90,110,130,125,155,148,165,158,175,168,195,200];
+  const allVals = [...dataA,...dataB];
+  const minV = Math.min(...allVals)*0.9, maxV = Math.max(...allVals)*1.05;
+  const px = i => (i/(dataA.length-1))*(W-40)+20;
+  const py = v => H-20 - ((v-minV)/(maxV-minV))*(H-35);
+  function drawLine(data, color) {
+    ctx.beginPath();
+    ctx.moveTo(px(0), py(data[0]));
+    for(let i=1;i<data.length;i++) ctx.lineTo(px(i),py(data[i]));
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.stroke();
+    ctx.lineTo(px(data.length-1), H-20); ctx.lineTo(px(0), H-20); ctx.closePath();
+    ctx.fillStyle = color.replace(')', ',0.08)').replace('rgb','rgba').replace('#','rgba(').replace('rgba(4f7dff)','rgba(79,125,255,0.08)');
+    ctx.globalAlpha = 0.3; ctx.fill(); ctx.globalAlpha = 1;
+  }
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle = 'rgba(99,130,255,0.08)'; ctx.lineWidth = 1;
+  for(let i=0;i<5;i++) { const y=py(minV+(maxV-minV)*i/4); ctx.beginPath(); ctx.moveTo(20,y); ctx.lineTo(W-20,y); ctx.stroke(); }
+  ctx.strokeStyle = '#4f7dff'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(px(0),py(dataA[0])); for(let i=1;i<dataA.length;i++) ctx.lineTo(px(i),py(dataA[i])); ctx.stroke();
+  ctx.strokeStyle = '#7c53ff'; ctx.beginPath(); ctx.moveTo(px(0),py(dataB[0])); for(let i=1;i<dataB.length;i++) ctx.lineTo(px(i),py(dataB[i])); ctx.stroke();
+}
+
+/* ============================================================
+   CHARTS — Dashboard
+   ============================================================ */
+let dashChartsDrawn = false;
+window.initDashCharts = function() {
+  if (dashChartsDrawn) return;
+  dashChartsDrawn = true;
+  setTimeout(() => {
+    drawLineChart('clicksChart', [100,115,130,120,145,155,140,160,155,170,180,200], [120,140,160,155,180,190,175,195,190,210,225,250], '#4f7dff', '#7c53ff', 200);
+    drawBarChart('convChart', [4.0,4.1,4.3,4.2,4.1,4.2,4.3,4.2], [5.2,5.4,5.7,5.8,5.6,5.9,5.8,5.8], '#4f7dff', '#7c53ff', 200);
+    drawAiChart('aiChart1', 'funnel');
+    drawAiChart('aiChart2', 'heatmap');
+    drawAiChart('aiChart3', 'bounce');
+  }, 80);
+}
+
+window.drawLineChart = function(id, dataA, dataB, colA, colB, h) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 420;
+  canvas.width = W * dpr; canvas.height = h * dpr;
+  canvas.style.width = W+'px'; canvas.style.height = h+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const allV = [...dataA,...dataB], minV = Math.min(...allV)*0.9, maxV = Math.max(...allV)*1.06;
+  const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].slice(0,dataA.length);
+  const pad = {t:16,r:16,b:32,l:40};
+  const cW = W-pad.l-pad.r, cH = h-pad.t-pad.b;
+  const px = i => pad.l + (i/(dataA.length-1))*cW;
+  const py = v => pad.t + cH - ((v-minV)/(maxV-minV))*cH;
+  ctx.clearRect(0,0,W,h);
+  ctx.strokeStyle='rgba(99,130,255,0.1)'; ctx.lineWidth=1;
+  for(let i=0;i<5;i++){const y=py(minV+(maxV-minV)*i/4);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();}
+  ctx.font='10px DM Sans,sans-serif'; ctx.fillStyle='rgba(139,154,181,0.7)'; ctx.textAlign='center';
+  labels.forEach((l,i) => ctx.fillText(l, px(i), h-6));
+  function line(data, col) {
+    ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(px(0),py(data[0]));
+    data.forEach((v,i)=>{ if(i>0) ctx.lineTo(px(i),py(v)); }); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px(0),py(data[0]));
+    data.forEach((v,i)=>{ if(i>0) ctx.lineTo(px(i),py(v)); });
+    ctx.lineTo(px(data.length-1),h-pad.b); ctx.lineTo(px(0),h-pad.b); ctx.closePath();
+    ctx.globalAlpha=0.08; ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1;
+  }
+  line(dataA, colA); line(dataB, colB);
+}
+
+window.drawBarChart = function(id, dataA, dataB, colA, colB, h) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 420;
+  canvas.width = W*dpr; canvas.height = h*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = h+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const allV=[...dataA,...dataB], maxV=Math.max(...allV)*1.15;
+  const labels=['W1','W2','W3','W4','W5','W6','W7','W8'].slice(0,dataA.length);
+  const pad={t:16,r:16,b:32,l:40};
+  const cW=W-pad.l-pad.r, cH=h-pad.t-pad.b;
+  const grpW = cW/dataA.length, bW = grpW*0.32;
+  ctx.clearRect(0,0,W,h);
+  ctx.font='10px DM Sans,sans-serif'; ctx.fillStyle='rgba(139,154,181,0.7)'; ctx.textAlign='center';
+  dataA.forEach((v,i) => {
+    const gx = pad.l + i*grpW + grpW/2;
+    const hA = (v/maxV)*cH, hB = (dataB[i]/maxV)*cH;
+    ctx.fillStyle=colA; ctx.beginPath(); ctx.roundRect(gx-bW-2, pad.t+cH-hA, bW, hA, 3); ctx.fill();
+    ctx.fillStyle=colB; ctx.beginPath(); ctx.roundRect(gx+2, pad.t+cH-hB, bW, hB, 3); ctx.fill();
+    ctx.fillStyle='rgba(139,154,181,0.7)'; ctx.fillText(labels[i], gx, h-6);
+  });
+}
+
+/* ============================================================
+   AI PLACEHOLDER CHARTS
+   ============================================================ */
+window.drawAiChart = function(id, type) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 260, H = canvas.offsetHeight || 140;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+  if (type === 'funnel') {
+    const stages = [1,0.72,0.48,0.28,0.14];
+    const colors = ['#4f7dff','#6b90ff','#7c53ff','#9b76ff','#00d4aa'];
+    const fH = (H-20)/stages.length;
+    stages.forEach((w,i) => {
+      const fw = w*(W*0.8); const x = (W-fw)/2;
+      ctx.fillStyle = colors[i]; ctx.globalAlpha = 0.85;
+      ctx.beginPath(); ctx.roundRect(x, 10+i*fH, fw, fH-3, 4); ctx.fill();
+      ctx.globalAlpha=1;
+    });
+  } else if (type === 'heatmap') {
+    const cols=10, rows=6;
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) {
+      const v = Math.random();
+      const alpha = 0.15 + v*0.75;
+      ctx.fillStyle = v>0.7 ? `rgba(242,80,96,${alpha})` : v>0.4 ? `rgba(79,125,255,${alpha})` : `rgba(0,212,170,${alpha})`;
+      ctx.beginPath(); ctx.roundRect(c*(W/cols)+2, r*(H/rows)+2, W/cols-4, H/rows-4, 3); ctx.fill();
+    }
+  } else if (type === 'bounce') {
+    const dataA=[43,42,44,43,41,42,43,42,41,43,42,41];
+    const dataB=[43,41,38,36,34,33,32,31,31,30,31,31];
+    const minV=25, maxV=50;
+    const px=i=>(i/(dataA.length-1))*(W-24)+12;
+    const py=v=>H-16-((v-minV)/(maxV-minV))*(H-28);
+    ctx.strokeStyle='rgba(99,130,255,0.1)'; ctx.lineWidth=1;
+    for(let i=0;i<4;i++){const y=py(minV+(maxV-minV)*i/3);ctx.beginPath();ctx.moveTo(12,y);ctx.lineTo(W-12,y);ctx.stroke();}
+    ctx.strokeStyle='#4f7dff'; ctx.lineWidth=2; ctx.lineJoin='round';
+    ctx.beginPath(); ctx.moveTo(px(0),py(dataA[0])); dataA.forEach((v,i)=>{if(i>0)ctx.lineTo(px(i),py(v));}); ctx.stroke();
+    ctx.strokeStyle='#00d4aa'; ctx.beginPath(); ctx.moveTo(px(0),py(dataB[0])); dataB.forEach((v,i)=>{if(i>0)ctx.lineTo(px(i),py(v));}); ctx.stroke();
+  }
+}
+
+let insightChartsDrawn = false;
+window.initInsightCharts = function() {
+  if (insightChartsDrawn) return;
+  insightChartsDrawn = true;
+  setTimeout(() => {
+    drawAiChart('aiInsightChart1', 'funnel');
+    drawAiChart('aiInsightChart2', 'heatmap');
+  }, 80);
+}
+
+/* ============================================================
+   A/B EXPLAINER ANIMATION
+   ============================================================ */
+window.runExplainer = function() {
+  const s2 = document.getElementById('step2');
+  const s3 = document.getElementById('step3');
+  const wb = document.getElementById('winnerBadge');
+  const cardB = document.getElementById('cardB');
+  if (s2) { s2.style.opacity='1'; s2.style.transform='none'; }
+  setTimeout(() => {
+    if (s3) { s3.style.opacity='1'; s3.style.transform='none'; }
+  }, 400);
+  setTimeout(() => {
+    if (wb) { wb.style.opacity='1'; wb.style.transform='scale(1)'; }
+    if (cardB) { cardB.style.borderColor='rgba(0,212,170,0.5)'; cardB.style.boxShadow='0 0 0 2px rgba(0,212,170,0.15)'; }
+  }, 1200);
+}
+
+window.replayExplainer = function() {
+  const s2 = document.getElementById('step2');
+  const s3 = document.getElementById('step3');
+  const wb = document.getElementById('winnerBadge');
+  const cardB = document.getElementById('cardB');
+  if (s2) { s2.style.transition='none'; s2.style.opacity='0'; s2.style.transform='translateY(12px)'; }
+  if (s3) { s3.style.transition='none'; s3.style.opacity='0'; s3.style.transform='translateY(12px)'; }
+  if (wb) { wb.style.transition='none'; wb.style.opacity='0'; wb.style.transform='scale(.7)'; }
+  if (cardB) { cardB.style.borderColor=''; cardB.style.boxShadow=''; }
+  setTimeout(() => {
+    if (s2) { s2.style.transition='all .5s .4s'; }
+    if (s3) { s3.style.transition='all .5s .8s'; }
+    if (wb) { wb.style.transition='all .4s 1.2s'; }
+    runExplainer();
+  }, 80);
+}
+
+/* ============================================================
+   THEME TOGGLE
+   ============================================================ */
+window.toggleTheme = function() {
+  const isLight = document.body.classList.toggle('light');
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = isLight ? '☀️' : '🌙';
+};
+
+/* ============================================================
+   LANGUAGE SWITCHER
+   ============================================================ */
+const LANGS = {
+  en: {
+    nav_home:'Home',nav_dashboard:'Dashboard',nav_insights:'AI Insights',nav_about:'About A/B',nav_contact:'Contact',nav_cta:'Get Started →',
+    hero_tag:'✦ AI-Powered Experimentation Platform',hero_h1:'Test Smarter. Ship Winners.',
+    hero_sub:"Testly uses AI to analyze your A/B experiments in real time — surfacing insights, predicting outcomes, and telling you exactly when to ship.",
+    hero_btn1:'View Live Dashboard →',hero_btn2:'How it works',
+    // Features
+    feat_tag:'Why Testly',feat_h2:'Everything you need to run great experiments',feat_sub:'From hypothesis to conclusion, Testly guides your team through the full A/B testing lifecycle.',
+    feat1_h:'Real-Time Analytics',feat1_p:'Watch your experiment data stream in live. Spot statistical significance the moment it happens with our smart alerts.',
+    feat2_h:'AI-Powered Insights',feat2_p:'Our AI analyzes your results and surfaces actionable recommendations — not just numbers, but narratives.',
+    feat3_h:'Segment Analysis',feat3_p:'Break down results by device, geography, user cohort, and 50+ dimensions to find exactly who responds to what.',
+    feat4_h:'No-Code Setup',feat4_p:'Launch experiments in minutes with our visual editor. No developer needed for simple UI tests.',
+    feat5_h:'Privacy-First',feat5_p:'Cookie-less experimentation with server-side rendering. GDPR, CCPA, and PECR compliant out of the box.',
+    feat6_h:'Integrations',feat6_p:'Connect with your existing stack — Segment, Amplitude, Mixpanel, Heap, and 40+ other tools.',
+    // Pricing
+    price_tag:'Pricing',price_h2:'Simple, transparent pricing',price_sub:'Start free. Scale as you grow. No hidden fees.',
+    price_starter:'Starter',price_starter_sub:'Free forever for small teams',price_starter_btn:'Start Free',
+    price_growth:'Growth',price_growth_sub:'For growing product teams',price_growth_btn:'Start Trial',price_growth_popular:'Most Popular',
+    price_ent:'Enterprise',price_ent_sub:'For scale and compliance',price_ent_btn:'Contact Sales',
+    // Testimonials
+    testi_tag:'Testimonials',testi_h2:'Trusted by data-driven teams',
+    testi1:"Testly's AI explanations saved us hours of analysis. We shipped a redesign that increased signups by 34% after just two experiments.",
+    testi2:"The segment breakdown feature is a game-changer. We discovered mobile users respond completely differently to CTAs — something we'd missed for years.",
+    testi3:"We ran 40+ experiments last quarter. Testly's dashboard makes it trivially easy to understand what's running and what's winning.",
+    // Video
+    vid_tag:'🎬 AI Video',vid_h2:'Why A/B Testing Works',vid_sub:"Stop guessing — let data decide. Here's the power behind every experiment.",
+    vid_step1_title:'Split your audience',vid_step1_body:"Half your users see Version A (old), half see Version B (new). Neither group knows they're in a test.",
+    vid_step2_title:'Measure what matters',vid_step2_body:'Track clicks, conversions, bounce rate, revenue. Real behaviour — not opinions or gut feelings.',
+    vid_step3_title:'Ship the winner with confidence',vid_step3_body:"When confidence exceeds 95%, you know Version B is better. No debate. No politics. Just data.",
+    vid_replay:'↺ Replay',vid_prompt_title:'Prompt for AI video (Sora / Kling / Runway)',
+    // About page
+    about_tag:'Learn',about_h1:'What is A/B Testing?',about_sub:'The complete guide to running statistically sound experiments that drive real business growth.',
+    about_stat1:'of companies run A/B tests regularly',about_stat2:'avg conversion lift from well-run tests',about_stat3:'earned for every $1 spent on optimization',about_stat4:'faster decision-making with data',
+    about_process_tag:'Process',about_process_h:'How A/B Testing Works',about_process_sub:'Four clear stages from idea to decision.',
+    step1_h:'Form a Hypothesis',step1_p:'Identify what you want to improve, propose a change, and define a measurable success metric.',
+    step2_h:'Split Your Traffic',step2_p:'Randomly assign visitors to control (A) and variant (B) groups. Random assignment eliminates selection bias.',
+    step3_h:'Collect Data',step3_p:'Run the experiment long enough to gather a statistically meaningful sample. Stopping too early leads to false positives.',
+    step4_h:'Analyze & Decide',step4_p:'Use statistical significance (p-value < 0.05) to determine if results are real. Then ship the winner or iterate.',
+    concepts_tag:'Key Concepts',concepts_h:'Statistical Foundations',
+    c1_h:'Statistical Significance',c1_p:"A result is 'statistically significant' when it's unlikely to have occurred by random chance. The industry standard is 95% confidence (p < 0.05).",
+    c2_h:'Sample Size',c2_p:'Larger samples produce more reliable results. Use a sample size calculator before starting to ensure your test has enough power.',
+    c3_h:'Minimum Detectable Effect',c3_p:'The smallest improvement you want to detect. Setting this helps calculate required sample size. Typically 5–20%.',
+    c4_h:'Type I vs Type II Error',c4_p:'Type I (false positive) declares a winner when there is none. Type II (false negative) misses a real improvement.',
+    c5_h:'Novelty Effect',c5_p:'A temporary boost from the change being new. Mitigate by running tests for full business cycles (at least 2 weeks).',
+    c6_h:"Simpson's Paradox",c6_p:'A trend in grouped data can disappear when combined. Always segment results by key dimensions.',
+    faq_tag:'FAQ',faq_h:'Frequently Asked Questions',
+    faq1_q:'How long should I run an A/B test?',faq1_a:"Run for at least 1–2 full business cycles (1–2 weeks minimum). Never stop based on early results — peeking dramatically increases false positive rates.",
+    faq2_q:"What's the difference between A/B and multivariate testing?",faq2_a:'A/B testing compares two versions of one element. Multivariate testing tests multiple elements simultaneously. MVT requires significantly more traffic.',
+    faq3_q:'How much traffic do I need?',faq3_a:'To detect a 10% lift on a 5% conversion rate, you need roughly 5,000 visitors per variant. Use our built-in calculator for precise numbers.',
+    faq4_q:'Can I run multiple tests at the same time?',faq4_a:"Yes, but with caution. Tests on different pages can run simultaneously. Tests on overlapping journeys can interfere. Testly's collision detection flags these automatically.",
+    faq5_q:'What if my results are not statistically significant?',faq5_a:"A non-significant result means the change likely doesn't have a meaningful impact. Reassess your hypothesis, gather qualitative data, and form a stronger hypothesis.",
+    // Contact
+    contact_tag:'Get in touch',contact_h2:'Contact Us',contact_sub:'Questions, demos, or enterprise inquiries — we respond within 1 business day.',
+    contact_info_h:"Let's talk experimentation",contact_info_p:"Whether you're just getting started or looking to scale, our team is here to help.",
+    contact_email_lbl:'Email',contact_chat_lbl:'Live Chat',contact_chat_val:'Available Mon–Fri, 9am–6pm EST',
+    contact_demo_lbl:'Book a Demo',contact_demo_val:'30-minute product walkthrough',
+    contact_office_lbl:'Office',contact_fn:'First name',contact_ln:'Last name',contact_email_field:'Work email',contact_company:'Company',contact_topic:'Topic',contact_msg:'Message',contact_btn:'Send Message →',
+    contact_success:"✓ Message sent! We'll get back to you within 1 business day.",
+    // AI Insights
+    insights_tag:'AI Insights',insights_h:'Experiment Intelligence',
+    insight1_title:'Clear Winner Identified',insight1_sub:'Statistical significance: 97.3% · Confidence level: High',
+    insight1_body:'<strong>Version B is the clear winner</strong> with significant improvement across all metrics. The redesigned CTA delivered <strong>+22.7% conversion rate lift</strong> (4.4% → 5.4%) and <strong>33.8% lower bounce rate</strong>. Industry avg lift: +12% (VWO 2024). <strong>Recommendation: Ship Version B immediately.</strong>',
+    insight1_btn1:'Ship Version B',insight1_btn2:'Download Report',
+    insight2_title:'Traffic & Engagement Analysis',insight2_sub:'Click volume · Session depth · Scroll behavior',
+    insight3_title:'What Drove the Improvement?',insight3_sub:'AI causal attribution analysis',
+    insight4_title:'Potential Risks & Considerations',insight4_sub:'Before you ship, review these flags',
+    // Chat
+    chat_placeholder:'Ask about your experiment…',chat_name:'Testly AI',chat_status:'● Online · Analyzing your experiment',
+    chat_welcome:"Hi! I'm your Testly AI assistant. I've analyzed your <strong>Homepage CTA Test</strong>. Version B is the winner with 97.3% confidence. What would you like to know?",
+    sugg1:'What does Version B do better?',sugg2:'Should I ship now?',sugg3:'Explain the bounce rate drop',sugg4:'Mobile vs desktop results?',
+    // Footer
+    ai_img_h2:'Visualizing the Future of Experimentation',
+    ai_img_sub:'Every image below was generated by AI — showing how data-driven decisions shape modern digital products.',
+    ai_img1_title:'A/B Test Dashboard',ai_img1_desc:'Real-time split testing interface with live conversion metrics',
+    ai_img2_title:'Statistical Significance',ai_img2_desc:'AI-powered confidence scoring and data pattern recognition',
+    ai_img3_title:'Conversion Funnel',ai_img3_desc:'Visualizing user journey optimization through experiment data',
+    ai_img4_title:'Growth Acceleration',ai_img4_desc:'Data-driven growth curves powered by continuous experimentation',
+    footer_desc:'AI-powered A/B testing for teams that care about evidence over intuition.',footer_nav:'Navigation',footer_authors:'Authors',
+    music_genre:'Lo-fi · Ambient',
+  },
+  ru: {
+    nav_home:'Главная',nav_dashboard:'Дашборд',nav_insights:'ИИ Анализ',nav_about:'Об A/B',nav_contact:'Контакты',nav_cta:'Начать →',
+    hero_tag:'✦ Платформа A/B тестирования на базе ИИ',hero_h1:'Тестируй умнее. Запускай победителей.',
+    hero_sub:'Testly использует ИИ для анализа A/B экспериментов в реальном времени — находит инсайты, предсказывает результаты и говорит когда запускать.',
+    hero_btn1:'Открыть дашборд →',hero_btn2:'Как это работает',
+    feat_tag:'Почему Testly',feat_h2:'Всё что нужно для идеальных экспериментов',feat_sub:'От гипотезы до вывода — Testly ведёт команду через весь цикл A/B тестирования.',
+    feat1_h:'Аналитика в реальном времени',feat1_p:'Следите за данными эксперимента в прямом эфире. Замечайте статистическую значимость в момент её появления.',
+    feat2_h:'ИИ-инсайты',feat2_p:'ИИ анализирует результаты и выдаёт рекомендации — не просто цифры, а понятные выводы.',
+    feat3_h:'Анализ сегментов',feat3_p:'Разбивайте результаты по устройству, географии, когорте пользователей и 50+ параметрам.',
+    feat4_h:'Без кода',feat4_p:'Запускайте эксперименты за минуты с визуальным редактором. Разработчик не нужен.',
+    feat5_h:'Приватность прежде всего',feat5_p:'Экспериментирование без куки с серверным рендерингом. Соответствие GDPR и CCPA.',
+    feat6_h:'Интеграции',feat6_p:'Подключите к вашему стеку — Segment, Amplitude, Mixpanel, Heap и 40+ других инструментов.',
+    price_tag:'Тарифы',price_h2:'Простые и прозрачные цены',price_sub:'Начните бесплатно. Масштабируйтесь по мере роста.',
+    price_starter:'Стартер',price_starter_sub:'Бесплатно навсегда для малых команд',price_starter_btn:'Начать бесплатно',
+    price_growth:'Рост',price_growth_sub:'Для растущих продуктовых команд',price_growth_btn:'Начать пробный',price_growth_popular:'Популярный',
+    price_ent:'Корпоратив',price_ent_sub:'Для масштаба и соответствия требованиям',price_ent_btn:'Связаться',
+    testi_tag:'Отзывы',testi_h2:'Нам доверяют команды, работающие с данными',
+    testi1:'ИИ-объяснения Testly сэкономили нам часы анализа. Мы запустили редизайн, который увеличил регистрации на 34% после двух экспериментов.',
+    testi2:'Функция разбивки по сегментам — настоящий прорыв. Мы обнаружили, что мобильные пользователи совершенно иначе реагируют на CTA.',
+    testi3:'В прошлом квартале мы провели 40+ экспериментов. Дашборд Testly делает невероятно простым понимание того, что работает.',
+    vid_tag:'🎬 AI Видео',vid_h2:'Почему A/B тестирование работает',vid_sub:'Хватит угадывать — пусть данные решают. Вот сила за каждым экспериментом.',
+    vid_step1_title:'Разделите аудиторию',vid_step1_body:'Половина пользователей видит версию A (старую), половина — версию B (новую). Никто не знает что участвует в тесте.',
+    vid_step2_title:'Измеряйте что важно',vid_step2_body:'Отслеживайте клики, конверсии, показатель отказов, доход. Реальное поведение — не мнения.',
+    vid_step3_title:'Запускайте победителя уверенно',vid_step3_body:'Когда достоверность превышает 95%, вы знаете что версия B лучше. Без споров. Только данные.',
+    vid_replay:'↺ Повторить',vid_prompt_title:'Промпт для AI-видео (Sora / Kling / Runway)',
+    about_tag:'Изучить',about_h1:'Что такое A/B тестирование?',about_sub:'Полное руководство по проведению статистически обоснованных экспериментов.',
+    about_stat1:'компаний регулярно проводят A/B тесты',about_stat2:'средний рост конверсии от грамотных тестов',about_stat3:'заработано на каждый $1 вложенный в оптимизацию',about_stat4:'быстрее принятие решений с данными',
+    about_process_tag:'Процесс',about_process_h:'Как работает A/B тестирование',about_process_sub:'Четыре этапа от идеи до решения.',
+    step1_h:'Сформулируйте гипотезу',step1_p:'Определите что хотите улучшить, предложите изменение и задайте измеримый показатель успеха.',
+    step2_h:'Разделите трафик',step2_p:'Случайно распределите посетителей в группы A и B. Случайность исключает предвзятость.',
+    step3_h:'Соберите данные',step3_p:'Запускайте эксперимент достаточно долго. Ранняя остановка приводит к ложным результатам.',
+    step4_h:'Анализируйте и решайте',step4_p:'Используйте статистическую значимость (p < 0.05) для оценки результатов. Запустите победителя.',
+    concepts_tag:'Ключевые понятия',concepts_h:'Статистическая основа',
+    c1_h:'Статистическая значимость',c1_p:"Результат считается статистически значимым, когда он вряд ли возник случайно. Стандарт — 95% достоверность.",
+    c2_h:'Размер выборки',c2_p:'Большие выборки дают надёжные результаты. Используйте калькулятор размера выборки перед запуском.',
+    c3_h:'Минимально обнаруживаемый эффект',c3_p:'Наименьшее улучшение которое вы хотите обнаружить. Обычно 5–20%.',
+    c4_h:'Ошибка I и II рода',c4_p:'Ошибка I (ложноположительная) — объявляет победителя без реального улучшения. Ошибка II — упускает реальное улучшение.',
+    c5_h:'Эффект новизны',c5_p:'Временный рост из-за новизны изменения. Запускайте тесты минимум 2 недели чтобы его нивелировать.',
+    c6_h:'Парадокс Симпсона',c6_p:'Тренд в сгруппированных данных может исчезнуть при объединении. Всегда сегментируйте результаты.',
+    faq_tag:'FAQ',faq_h:'Часто задаваемые вопросы',
+    faq1_q:'Как долго проводить A/B тест?',faq1_a:'Минимум 1–2 полных бизнес-цикла (1–2 недели). Никогда не останавливайтесь по ранним результатам.',
+    faq2_q:'Чем A/B отличается от многовариантного тестирования?',faq2_a:'A/B тестирует два варианта одного элемента. Многовариантное тестирование — несколько элементов одновременно. Требует гораздо больше трафика.',
+    faq3_q:'Сколько трафика нужно?',faq3_a:'Для обнаружения 10% роста конверсии в 5% нужно около 5000 посетителей на вариант.',
+    faq4_q:'Можно запускать несколько тестов одновременно?',faq4_a:'Да, но осторожно. Тесты на разных страницах — можно. На пересекающихся путях — могут мешать друг другу.',
+    faq5_q:'Что если результаты не значимы?',faq5_a:'Незначимый результат тоже ценен — изменение не влияет на метрику. Пересмотрите гипотезу и соберите качественные данные.',
+    contact_tag:'Связаться',contact_h2:'Напишите нам',contact_sub:'Вопросы, демо или корпоративные запросы — мы отвечаем в течение 1 рабочего дня.',
+    contact_info_h:'Поговорим об экспериментировании',contact_info_p:'Только начинаете с A/B тестирования или хотите масштабировать программу — мы поможем.',
+    contact_email_lbl:'Email',contact_chat_lbl:'Живой чат',contact_chat_val:'Пн–Пт, 9:00–18:00 МСК',
+    contact_demo_lbl:'Записаться на демо',contact_demo_val:'30-минутный обзор продукта',
+    contact_office_lbl:'Офис',contact_fn:'Имя',contact_ln:'Фамилия',contact_email_field:'Рабочий email',contact_company:'Компания',contact_topic:'Тема',contact_msg:'Сообщение',contact_btn:'Отправить →',
+    contact_success:'✓ Сообщение отправлено! Мы ответим в течение 1 рабочего дня.',
+    insights_tag:'ИИ Анализ',insights_h:'Интеллект эксперимента',
+    insight1_title:'Победитель определён',insight1_sub:'Статистическая значимость: 97.3% · Уровень достоверности: Высокий',
+    insight1_body:'<strong>Версия B — явный победитель</strong> со значимым улучшением по всем метрикам. CTA дал <strong>+22.7% конверсии</strong> (4.4% → 5.4%) и <strong>снижение отказов на 33.8%</strong>. Среднеотраслевой рост: +12% (VWO 2024). <strong>Рекомендация: запускайте версию B немедленно.</strong>',
+    insight1_btn1:'Запустить версию B',insight1_btn2:'Скачать отчёт',
+    insight2_title:'Анализ трафика и вовлечённости',insight2_sub:'Объём кликов · Глубина сессии · Поведение прокрутки',
+    insight3_title:'Что привело к улучшению?',insight3_sub:'ИИ-анализ причинно-следственных связей',
+    insight4_title:'Возможные риски',insight4_sub:'Перед запуском проверьте эти факторы',
+    chat_placeholder:'Спросите об эксперименте…',chat_name:'Testly ИИ',chat_status:'● Онлайн · Анализирую эксперимент',
+    chat_welcome:"Привет! Я ваш ИИ-ассистент Testly. Я проанализировал ваш <strong>тест Homepage CTA</strong>. Версия B — победитель с достоверностью 97.3%. Что хотите узнать?",
+    sugg1:'Чем версия B лучше?',sugg2:'Запускать сейчас?',sugg3:'Объясни снижение отказов',sugg4:'Результаты на мобильных vs десктоп?',
+    ai_img_h2:'Визуализация будущего экспериментирования',
+    ai_img_sub:'Каждое изображение ниже создано ИИ — показывая как решения на основе данных формируют современные продукты.',
+    ai_img1_title:'Дашборд A/B теста',ai_img1_desc:'Интерфейс тестирования в реальном времени с метриками конверсии',
+    ai_img2_title:'Статистическая значимость',ai_img2_desc:'ИИ-скоринг достоверности и распознавание паттернов данных',
+    ai_img3_title:'Воронка конверсии',ai_img3_desc:'Визуализация оптимизации пути пользователя через данные экспериментов',
+    ai_img4_title:'Ускорение роста',ai_img4_desc:'Кривые роста на основе данных непрерывного экспериментирования',
+    footer_desc:'A/B тестирование на базе ИИ для команд, которым важны данные.',footer_nav:'Навигация',footer_authors:'Авторы',
+    music_genre:'Ло-фай · Эмбиент',
+  },
+  kz: {
+    nav_home:'Басты',nav_dashboard:'Бақылау',nav_insights:'ЖИ Талдау',nav_about:'A/B туралы',nav_contact:'Байланыс',nav_cta:'Бастау →',
+    hero_tag:'✦ ЖИ негізіндегі A/B тестілеу платформасы',hero_h1:'Ақылды тесттеу. Жеңімпазды жіберу.',
+    hero_sub:'Testly A/B эксперименттерін нақты уақытта талдау үшін ЖИ пайдаланады — нәтижелерді болжайды және қашан жіберу керектігін айтады.',
+    hero_btn1:'Бақылау тақтасы →',hero_btn2:'Қалай жұмыс істейді',
+    feat_tag:'Неге Testly',feat_h2:'Тамаша экспериментке қажет нәрсенің бәрі',feat_sub:'Гипотезадан қорытындыға дейін — Testly командаңызды A/B тестілеудің толық циклі арқылы жетелейді.',
+    feat1_h:'Нақты уақыттағы аналитика',feat1_p:'Эксперимент деректерін тікелей эфирде қадағалаңыз. Статистикалық маңыздылықты бірден байқаңыз.',
+    feat2_h:'ЖИ-инсайттар',feat2_p:'ЖИ нәтижелерді талдайды және іс жүзіндегі ұсыныстар береді — тек сандар емес, нақты қорытындылар.',
+    feat3_h:'Сегмент талдауы',feat3_p:'Нәтижелерді құрылғы, география, пайдаланушы когорты және 50+ өлшем бойынша бөліңіз.',
+    feat4_h:'Коднсыз орнату',feat4_p:'Экспериментті минуттар ішінде іске қосыңыз. Қарапайым UI тесттері үшін әзірлеуші қажет емес.',
+    feat5_h:'Құпиялылық бірінші',feat5_p:'Серверлік рендерингпен cookie-сіз эксперимент. GDPR және CCPA талаптарына сай.',
+    feat6_h:'Интеграциялар',feat6_p:'Бар стекіңізге қосылыңыз — Segment, Amplitude, Mixpanel, Heap және 40+ басқа құралдар.',
+    price_tag:'Бағалар',price_h2:'Қарапайым және ашық баға',price_sub:'Тегін бастаңыз. Өсу барысында кеңейтіңіз.',
+    price_starter:'Стартер',price_starter_sub:'Кішкентай командалар үшін мәңгі тегін',price_starter_btn:'Тегін бастау',
+    price_growth:'Өсу',price_growth_sub:'Өсіп жатқан өнім командалары үшін',price_growth_btn:'Сынақ бастау',price_growth_popular:'Танымал',
+    price_ent:'Корпоративтік',price_ent_sub:'Масштаб және сәйкестік үшін',price_ent_btn:'Байланысу',
+    testi_tag:'Пікірлер',testi_h2:'Деректерге негізделген командалар сенеді',
+    testi1:"Testly ЖИ түсіндірмелері сағаттар бойы талдауды үнемдеді. Біз екі эксперименттен кейін тіркелулерді 34%-ға арттырған редизайн жасадық.",
+    testi2:'Сегмент бойынша бөлу мүмкіндігі — ойын өзгерткіш. Мобильді пайдаланушылар CTA-ға мүлде басқаша жауап беретінін анықтадық.',
+    testi3:'Өткен тоқсанда 40+ эксперимент жүргіздік. Testly бақылау тақтасы не жұмыс істеп жатқанын түсінуді керемет жеңілдетеді.',
+    vid_tag:'🎬 AI Бейне',vid_h2:'A/B тестілеу неліктен жұмыс істейді',vid_sub:'Болжауды тоқтатыңыз — деректер шешсін.',
+    vid_step1_title:'Аудиторияны бөліңіз',vid_step1_body:'Пайдаланушылардың жартысы A нұсқасын, жартысы B нұсқасын көреді. Ешкім тестте екенін білмейді.',
+    vid_step2_title:'Маңыздыны өлшеңіз',vid_step2_body:'Кликтер, конверсиялар, кету жылдамдығы, кіріс. Нақты мінез-құлық — пікір емес.',
+    vid_step3_title:'Жеңімпазды сенімді жіберіңіз',vid_step3_body:'95%-дан асқанда B нұсқасы жақсы екенін білесіз. Дау жоқ. Тек деректер.',
+    vid_replay:'↺ Қайталау',vid_prompt_title:'AI бейне промпті (Sora / Kling / Runway)',
+    about_tag:'Үйрену',about_h1:'A/B тестілеу дегеніміз не?',about_sub:'Нақты бизнес өсімін қамтамасыз ететін эксперименттер жүргізудің толық нұсқаулығы.',
+    about_stat1:'компания үнемі A/B тесттер жүргізеді',about_stat2:'жақсы жүргізілген тесттерден орташа конверсия өсімі',about_stat3:'оптимизацияға жұмсалған $1-ге табыс',about_stat4:'деректермен шешім қабылдау жылдамдығы',
+    about_process_tag:'Үдеріс',about_process_h:'A/B тестілеу қалай жұмыс істейді',about_process_sub:'Идеядан шешімге дейін төрт кезең.',
+    step1_h:'Гипотеза қалыптастырыңыз',step1_p:'Не жақсартқыңыз келетінін анықтаңыз, өзгеріс ұсыныңыз және өлшенетін табыс көрсеткішін белгілеңіз.',
+    step2_h:'Трафикті бөліңіз',step2_p:'Келушілерді A (бақылау) және B (нұсқа) топтарына кездейсоқ бөліңіз. Кездейсоқтық іріктеу ауытқуын жояды.',
+    step3_h:'Деректер жинаңыз',step3_p:'Статистикалық маңызды үлгі жинау үшін жеткілікті уақыт жүргізіңіз. Ерте тоқтату жалған оң нәтижелерге әкеледі.',
+    step4_h:'Талдаңыз және шешіңіз',step4_p:'Нәтижелер нақты екенін анықтау үшін статистикалық маңыздылықты (p < 0.05) пайдаланыңыз.',
+    concepts_tag:'Негізгі ұғымдар',concepts_h:'Статистикалық негіздер',
+    c1_h:'Статистикалық маңыздылық',c1_p:"Нәтиже кездейсоқ пайда болу мүмкіндігі аз болғанда статистикалық маңызды болып саналады. Стандарт — 95% сенімділік.",
+    c2_h:'Үлгі өлшемі',c2_p:'Үлкен үлгілер сенімді нәтижелер береді. Жеткілікті күш бар-жоғын тексеру үшін калькуляторды пайдаланыңыз.',
+    c3_h:'Минималды анықталатын эффект',c3_p:'Анықтағыңыз келетін ең кіші жақсарту. Әдетте 5–20% аралығында белгіленеді.',
+    c4_h:'I және II типті қате',c4_p:'I типті (жалған оң) нақты жеңімпаз жоқ кезде жариялайды. II типті нақты жақсартуды жіберіп алады.',
+    c5_h:'Жаңалық эффектісі',c5_p:'Өзгерістің жаңалығынан уақытша өсу. Кемінде 2 апта тест жүргізу арқылы азайтыңыз.',
+    c6_h:'Симпсон парадоксы',c6_p:'Топтастырылған деректердегі тренд біріктірілгенде жоғалуы мүмкін. Нәтижелерді әрқашан сегменттеңіз.',
+    faq_tag:'FAQ',faq_h:'Жиі қойылатын сұрақтар',
+    faq1_q:'A/B тестін қанша уақыт жүргізу керек?',faq1_a:'Кемінде 1–2 толық бизнес циклі (1–2 апта). Ерте нәтижелерге сүйеніп тоқтатпаңыз.',
+    faq2_q:'A/B және көпвариантты тестілеудің айырмашылығы қандай?',faq2_a:'A/B тестілеу бір элементтің екі нұсқасын салыстырады. Көпвариантты тестілеу бір мезетте бірнеше элементті тексереді.',
+    faq3_q:'Қанша трафик қажет?',faq3_a:'5% конверсияда 10% өсімді анықтау үшін нұсқаға шамамен 5000 келуші қажет.',
+    faq4_q:'Бірнеше тестті бір мезетте жүргізуге бола ма?',faq4_a:'Иә, бірақ абайлап. Әртүрлі беттердегі тесттер — болады. Қабаттасатын жолдар бір-біріне кедергі жасауы мүмкін.',
+    faq5_q:'Нәтижелер статистикалық маңызды болмаса ше?',faq5_a:'Маңызды емес нәтиже де құнды — өзгеріс метрикаға әсер етпейді. Гипотезаны қайта қарастырып, сапалық деректер жинаңыз.',
+    contact_tag:'Байланыс',contact_h2:'Бізге жазыңыз',contact_sub:'Сұрақтар, демо немесе корпоративтік сұраулар — 1 жұмыс күні ішінде жауап береміз.',
+    contact_info_h:'Эксперимент туралы сөйлесейік',contact_info_p:'A/B тестілеуді жаңа бастап жатырсыз ба немесе масштабтағыңыз келе ме — командамыз көмектеседі.',
+    contact_email_lbl:'Email',contact_chat_lbl:'Тікелей чат',contact_chat_val:'Дс–Жм, 9:00–18:00',
+    contact_demo_lbl:'Демоға жазылу',contact_demo_val:'30 минуттық өнім шолуы',
+    contact_office_lbl:'Кеңсе',contact_fn:'Аты',contact_ln:'Тегі',contact_email_field:'Жұмыс emailі',contact_company:'Компания',contact_topic:'Тақырып',contact_msg:'Хабарлама',contact_btn:'Жіберу →',
+    contact_success:'✓ Хабарлама жіберілді! 1 жұмыс күні ішінде жауап береміз.',
+    insights_tag:'ЖИ Талдау',insights_h:'Эксперимент интеллектісі',
+    insight1_title:'Жеңімпаз анықталды',insight1_sub:'Статистикалық маңыздылық: 97.3% · Сенімділік деңгейі: Жоғары',
+    insight1_body:'<strong>B нұсқасы — анық жеңімпаз</strong>. Жаңартылған CTA <strong>+38.1% конверсия</strong> (4.2% → 5.8%) және <strong>27.9% төмен кету жылдамдығын</strong> берді. <strong>Ұсыным: B нұсқасын дереу іске қосыңыз.</strong>',
+    insight1_btn1:'B нұсқасын іске қосу',insight1_btn2:'Есепті жүктеу',
+    insight2_title:'Трафик және қатысу талдауы',insight2_sub:'Клик көлемі · Сессия тереңдігі · Айналдыру мінез-құлқы',
+    insight3_title:'Жақсартуды не қозғады?',insight3_sub:'ЖИ себеп-салдар талдауы',
+    insight4_title:'Ықтимал тәуекелдер',insight4_sub:'Іске қоспас бұрын осы факторларды тексеріңіз',
+    chat_placeholder:'Эксперимент туралы сұраңыз…',chat_name:'Testly ЖИ',chat_status:'● Онлайн · Эксперимент талдануда',
+    chat_welcome:"Сәлем! Мен сіздің Testly ЖИ-ассистентіңізмін. <strong>Homepage CTA тестіңізді</strong> талдадым. B нұсқасы 97.3% сенімділікпен жеңімпаз. Не білгіңіз келеді?",
+    sugg1:'B нұсқасы неде жақсы?',sugg2:'Қазір іске қосу керек пе?',sugg3:'Кету жылдамдығының төмендеуін түсіндір',sugg4:'Мобильді vs десктоп нәтижелері?',
+    ai_img_h2:'Эксперименттеудің болашағын визуализациялау',
+    ai_img_sub:'Төмендегі әр сурет ЖИ арқылы жасалған — деректерге негізделген шешімдер заманауи өнімдерді қалай қалыптастыратынын көрсетеді.',
+    ai_img1_title:'A/B тест бақылау тақтасы',ai_img1_desc:'Нақты уақыттағы тестілеу интерфейсі',
+    ai_img2_title:'Статистикалық маңыздылық',ai_img2_desc:'ЖИ сенімділік скорингі және деректер үлгілерін тану',
+    ai_img3_title:'Конверсия шұңқыры',ai_img3_desc:'Эксперимент деректері арқылы пайдаланушы жолын оңтайландыру',
+    ai_img4_title:'Өсуді жеделдету',ai_img4_desc:'Үздіксіз эксперименттеуге негізделген өсу қисықтары',
+    footer_desc:'Деректерге негізделген командалар үшін ЖИ A/B тестілеуі.',footer_nav:'Навигация',footer_authors:'Авторлар',
+    music_genre:'Ло-фай · Эмбиент',
+  }
+};
+
+let currentLang = 'en';
+
+const I18N_MAP = {
+  // Nav buttons
+  '[data-i18n="nav_home"]':      el => el.textContent,
+  '[data-i18n="nav_dashboard"]': el => el.textContent,
+  '[data-i18n="nav_insights"]':  el => el.textContent,
+  '[data-i18n="nav_about"]':     el => el.textContent,
+  '[data-i18n="nav_contact"]':   el => el.textContent,
+  '[data-i18n="nav_cta"]':       el => el.textContent,
+};
+
+window.setLang = function(lang) {
+  currentLang = lang;
+  const t = LANGS[lang];
+
+  // Update lang buttons
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === lang.toUpperCase());
+  });
+
+  // Update all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) {
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.placeholder = t[key];
+      } else {
+        el.innerHTML = t[key];
+      }
+    }
+  });
+}
+
+window.showNfCase = function(n) {
+  document.getElementById('nfCase1').style.display = n===1 ? 'block' : 'none';
+  document.getElementById('nfCase2').style.display = n===2 ? 'block' : 'none';
+  document.getElementById('nfTab1').classList.toggle('active', n===1);
+  document.getElementById('nfTab2').classList.toggle('active', n===2);
+};
+
+/* ============================================================
+   AI IMAGES — set src here after generating
+   Replace empty strings with your image file names or URLs
+   ============================================================ */
+const AI_IMAGES = [
+  'img_2.jpeg',
+  'img_3.jpeg',
+  'img_4.jpeg',
+  'img_5.jpeg',
+];
+
+window.openLightbox = function(idx) {
+  const src = AI_IMAGES[idx];
+  if (!src) return;
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightboxImg').src = src;
+  lb.style.display = 'flex';
+};
+
+window.closeLightbox = function() {
+  document.getElementById('lightbox').style.display = 'none';
+};
+
+function loadAIImages() {
+  AI_IMAGES.forEach((src, i) => {
+    if (!src) return;
+    const img = document.getElementById('aiImg' + i);
+    const ph = document.getElementById('aiPlaceholder' + i);
+    if (img && src) {
+      img.src = src;
+      img.style.display = 'block';
+      if (ph) ph.style.display = 'none';
+    }
+  });
+}
+
+/* ============================================================
+   BACK TO TOP
+   ============================================================ */
+function initBackToTop() {
+  const btn = document.getElementById('backToTop');
+  if (!btn) return;
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+}
+
+/* ============================================================
+   AI INSIGHTS TABS
+   ============================================================ */
+window.switchInsTab = function(n) {
+  [1,2,3].forEach(i => {
+    const content = document.getElementById('insContent'+i);
+    const tab = document.getElementById('insTab'+i);
+    if (content) content.style.display = i===n ? 'block' : 'none';
+    if (tab) {
+      tab.style.borderBottomColor = i===n ? 'var(--accent)' : 'transparent';
+      tab.style.color = i===n ? 'var(--accent)' : 'var(--text3)';
+    }
+  });
+};
+
+/* ============================================================
+   AI TEXT ANALYZER
+   ============================================================ */
+window.runAnalyzer = function() {
+  const ctx = document.getElementById('analyzerContext').value.trim();
+  const a = document.getElementById('analyzerA').value.trim();
+  const b = document.getElementById('analyzerB').value.trim();
+  if (!a || !b) { alert('Введи оба варианта текста!'); return; }
+
+  document.getElementById('analyzerResult').style.display = 'none';
+  document.getElementById('analyzerLoading').style.display = 'block';
+  document.getElementById('analyzerBtn').disabled = true;
+
+  const prompt = `Ты эксперт по A/B тестированию, UX копирайтингу и конверсионной оптимизации.
+
+Контекст: ${ctx || 'CTA кнопка на лендинге'}
+Version A: "${a}"
+Version B: "${b}"
+
+Проанализируй оба варианта и ответь СТРОГО в формате JSON (без markdown, без \`\`\`):
+{
+  "winner": "A" или "B",
+  "probability": число от 51 до 92 (вероятность победы в %),
+  "winner_text": "текст победителя",
+  "analysis": "подробный анализ на русском языке — почему один вариант лучше другого, психологические триггеры, UX принципы, что улучшить в проигравшем. 3-4 предложения."
+}`;
+
+  fetch(OR_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OR_KEY}`, 'HTTP-Referer': 'https://testly.io', 'X-Title': 'Testly AI' },
+    body: JSON.stringify({ model: 'meta-llama/llama-3.2-3b-instruct:free', messages: [{ role: 'user', content: prompt }] })
+  })
+  .then(r => r.json())
+  .then(data => {
+    const text = data?.choices?.[0]?.message?.content || '';
+    let result;
+    try {
+      const clean = text.replace(/```json|```/g, '').trim();
+      result = JSON.parse(clean);
+    } catch(e) {
+      result = { winner: 'B', probability: 68, winner_text: b, analysis: text };
+    }
+    document.getElementById('analyzerLoading').style.display = 'none';
+    document.getElementById('analyzerResult').style.display = 'block';
+    document.getElementById('winnerLabel').textContent = `🏆 Version ${result.winner}: "${result.winner_text || (result.winner==='A'?a:b)}"`;
+    document.getElementById('winnerProb').textContent = `Вероятность победы: ${result.probability}% · Рекомендуется к тестированию`;
+    document.getElementById('analyzerText').textContent = result.analysis;
+    document.getElementById('analyzerBtn').disabled = false;
+  })
+  .catch(() => {
+    document.getElementById('analyzerLoading').style.display = 'none';
+    document.getElementById('analyzerResult').style.display = 'block';
+    document.getElementById('winnerLabel').textContent = '⚠️ Ошибка подключения';
+    document.getElementById('winnerProb').textContent = 'Открой файл локально через Live Server';
+    document.getElementById('analyzerText').textContent = 'AI Text Analyzer работает только при запуске через локальный сервер (не file://).';
+    document.getElementById('analyzerBtn').disabled = false;
+  });
+};
+
+window.resetAnalyzer = function() {
+  document.getElementById('analyzerResult').style.display = 'none';
+  document.getElementById('analyzerA').value = '';
+  document.getElementById('analyzerB').value = '';
+  document.getElementById('analyzerContext').value = '';
+};
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(drawHeroChart, 200);
+  setTimeout(runExplainer, 600);
+  initDashCharts();
+  loadAIImages();
+  initBackToTop();
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang')));
+  });
+});
+window.addEventListener('resize', () => { dashChartsDrawn = false; insightChartsDrawn = false; });
+</script>
+
+</body>
+</html>
