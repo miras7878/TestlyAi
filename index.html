@@ -847,6 +847,7 @@ footer {
   </div>
   <div style="display:flex;align-items:center;gap:.5rem">
     <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme" title="Switch theme">🌙</button>
+    <button class="theme-btn" onclick="showKeyPrompt()" aria-label="API Key" title="Set API Key" style="font-size:.75rem">🔑</button>
     <div class="lang-switcher">
       <button class="lang-btn active" data-lang="en">EN</button>
       <button class="lang-btn" data-lang="ru">RU</button>
@@ -880,12 +881,12 @@ footer {
       <div class="hero-demo-body">
         <div class="mini-stat-row">
           <div class="mini-stat">
-            <div class="mini-stat-l">Total Clicks</div>
+            <div class="mini-stat-l" data-i18n="dash_stat1">Total Clicks</div>
             <div class="mini-stat-v text-grad">14,872</div>
             <div class="mini-stat-d delta-up">↑ +31.7%</div>
           </div>
           <div class="mini-stat">
-            <div class="mini-stat-l">Avg Conversion</div>
+            <div class="mini-stat-l" data-i18n="dash_stat2">Avg Conversion</div>
             <div class="mini-stat-v text-grad">5.4%</div>
             <div class="mini-stat-d delta-up">↑ +38%</div>
           </div>
@@ -895,7 +896,7 @@ footer {
             <div class="mini-stat-d delta-down">↓ −27.9%</div>
           </div>
           <div class="mini-stat">
-            <div class="mini-stat-l">Confidence</div>
+            <div class="mini-stat-l" data-i18n="th_confidence">Confidence</div>
             <div class="mini-stat-v text-teal">97.3%</div>
             <div class="mini-stat-d delta-up">✓ Significant</div>
           </div>
@@ -1149,8 +1150,8 @@ footer {
   <div class="section">
     <div class="dash-header">
       <div>
-        <h2>Experiment Dashboard</h2>
-        <p style="color:var(--text2);font-size:.875rem;margin-top:.2rem">SaaS Landing Page CTA Test · Source: VWO Industry Benchmark 2024</p>
+        <h2 data-i18n="dash_h">Experiment Dashboard</h2>
+        <p style="color:var(--text2);font-size:.875rem;margin-top:.2rem" data-i18n="dash_sub">SaaS Landing Page CTA Test · Source: VWO Industry Benchmark 2024</p>
       </div>
       <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
         <div class="dash-tabs">
@@ -1158,7 +1159,7 @@ footer {
           <button class="dash-tab">Segments</button>
           <button class="dash-tab">Timeline</button>
         </div>
-        <button class="btn btn-primary btn-sm" onclick="showPage('insights',null)">View AI Insights →</button>
+        <button class="btn btn-primary btn-sm" onclick="showPage('insights',null)" data-i18n="dash_insights_btn">View AI Insights →</button>
       </div>
     </div>
 
@@ -1189,47 +1190,47 @@ footer {
       </div>
       <div class="stat-card">
         <div class="stat-icon" style="background:rgba(245,158,11,0.1)">↩️</div>
-        <div class="stat-label">Avg Bounce Rate</div>
+        <div class="stat-label" data-i18n="dash_stat3">Avg Bounce Rate</div>
         <div class="stat-val">38.4%</div>
         <div class="stat-delta delta-down">↓ B reduced bounce by 12pp</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon fi-teal">📈</div>
-        <div class="stat-label">Statistical Confidence</div>
+        <div class="stat-label" data-i18n="dash_stat4">Statistical Confidence</div>
         <div class="stat-val text-teal">97.3%</div>
         <div class="stat-delta delta-up">✓ Statistically significant</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon fi-blue">⏱️</div>
-        <div class="stat-label">Avg Session Duration</div>
+        <div class="stat-label" data-i18n="dash_stat5">Avg Session Duration</div>
         <div class="stat-val">2m 38s</div>
         <div class="stat-delta delta-up">↑ +18s longer in variant B</div>
       </div>
       <div class="stat-card">
         <div class="stat-icon fi-purple">💰</div>
-        <div class="stat-label">Est. Revenue Lift</div>
+        <div class="stat-label" data-i18n="dash_stat6">Est. Revenue Lift</div>
         <div class="stat-val">+$6.8k</div>
         <div class="stat-delta delta-up">↑ Projected monthly uplift</div>
       </div>
     </div>
 
     <!-- A/B comparison -->
-    <div style="margin:1.75rem 0 .75rem"><p class="tag">Variant Comparison</p></div>
+    <div style="margin:1.75rem 0 .75rem"><p class="tag" data-i18n="dash_variant_h">Variant Comparison</p></div>
     <div class="ab-compare">
       <div class="ab-card">
-        <h3>Version A</h3>
+        <h3 data-i18n="dash_va">Version A</h3>
         <div class="sub">Control · Original SaaS Landing CTA · Industry avg: 4.4% (Unbounce 2024)</div>
         <div class="ab-metric"><span class="ab-metric-label">Clicks</span><span class="ab-metric-val">7,041</span></div>
         <div class="ab-metric"><span class="ab-metric-label">Conversion Rate</span><span class="ab-metric-val" style="color:var(--accent)">4.4%</span></div>
         <div class="ab-metric"><span class="ab-metric-label">Bounce Rate</span><span class="ab-metric-val" style="color:var(--warn)">46.2%</span></div>
         <div class="ab-metric"><span class="ab-metric-label">Avg Session</span><span class="ab-metric-val">2m 14s</span></div>
         <div class="ab-bar-wrap">
-          <div class="ab-bar-label"><span>Conversion progress</span><span>4.4%</span></div>
+          <div class="ab-bar-label"><span data-i18n="dash_conv_prog">Conversion progress</span><span>4.4%</span></div>
           <div class="ab-bar-track"><div class="ab-bar-fill fill-a" style="width:44%"></div></div>
         </div>
       </div>
       <div class="ab-card winner">
-        <h3>Version B</h3>
+        <h3 data-i18n="dash_vb">Version B</h3>
         <div class="sub">Variant · Redesigned CTA + social proof · Target: 6.6% median (Unbounce)</div>
         <div class="ab-metric"><span class="ab-metric-label">Clicks</span><span class="ab-metric-val">7,831</span></div>
         <div class="ab-metric"><span class="ab-metric-label">Conversion Rate</span><span class="ab-metric-val" style="color:var(--accent2)">5.4%</span></div>
@@ -1243,7 +1244,7 @@ footer {
     </div>
 
     <!-- AI placeholder images -->
-    <div style="margin:1.75rem 0 .75rem"><p class="tag" style="margin:0">AI-Generated Analytics</p></div>
+    <div style="margin:1.75rem 0 .75rem"><p class="tag" style="margin:0" data-i18n="dash_ai_label">AI-Generated Analytics</p></div>
     <div class="ai-imgs-grid">
       <div class="ai-img-placeholder"><canvas id="aiChart1"></canvas><div class="ai-img-label"><span>Conversion Funnel</span><span class="ai-badge-pill">AI</span></div></div>
       <div class="ai-img-placeholder"><canvas id="aiChart2"></canvas><div class="ai-img-label"><span>Traffic Heatmap</span><span class="ai-badge-pill">AI</span></div></div>
@@ -1253,7 +1254,7 @@ footer {
     <!-- Charts -->
     <div class="charts-grid">
       <div class="chart-wrap">
-        <div class="chart-title">Clicks Over Time</div>
+        <div class="chart-title" data-i18n="chart1_title">Clicks Over Time</div>
         <div class="chart-legend">
           <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Version A</div>
           <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Version B</div>
@@ -1261,7 +1262,7 @@ footer {
         <canvas id="clicksChart" height="200"></canvas>
       </div>
       <div class="chart-wrap">
-        <div class="chart-title">Conversion Rate Comparison</div>
+        <div class="chart-title" data-i18n="chart2_title">Conversion Rate Comparison</div>
         <div class="chart-legend">
           <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Version A</div>
           <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Version B</div>
@@ -1276,12 +1277,12 @@ footer {
       <table>
         <thead>
           <tr>
-            <th>Metric</th>
+            <th data-i18n="th_metric">Metric</th>
             <th>Version A</th>
             <th>Version B</th>
-            <th>Difference</th>
-            <th>Winner</th>
-            <th>Status</th>
+            <th data-i18n="th_diff">Difference</th>
+            <th data-i18n="th_winner">Winner</th>
+            <th data-i18n="th_status">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -1346,11 +1347,11 @@ footer {
     </div>
 
     <!-- All experiments table -->
-    <div style="margin:1.75rem 0 .75rem"><p class="tag" style="margin:0">All Experiments</p></div>
+    <div style="margin:1.75rem 0 .75rem"><p class="tag" style="margin:0" data-i18n="dash_all_exp">All Experiments</p></div>
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>Experiment</th><th>Variants</th><th>Visitors</th><th>Conversion Lift</th><th>Confidence</th><th>Status</th></tr>
+          <tr><th data-i18n="th_experiment">Experiment</th><th data-i18n="th_variants">Variants</th><th data-i18n="th_visitors">Visitors</th><th data-i18n="th_conv_lift">Conversion Lift</th><th>Confidence</th><th>Status</th></tr>
         </thead>
         <tbody>
           <tr><td>Homepage CTA Test</td><td>A / B</td><td>2,780</td><td class="delta-up">+38.1%</td><td class="text-teal">97.3%</td><td><span class="badge badge-win">Winner: B</span></td></tr>
@@ -1371,7 +1372,7 @@ footer {
       <div style="display:flex;align-items:center;gap:.75rem">
         <div style="width:40px;height:40px;border-radius:10px;background:#003580;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;color:#febb02;font-family:var(--font-display)">B.</div>
         <div>
-          <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem">Real A/B Test Case Studies</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem" data-i18n="case_h">Real A/B Test Case Studies</div>
           <div style="font-size:.78rem;color:var(--text3)">Booking.com (GoodUI.org, 2019) · Netflix (Netflix Tech Blog, 2017)</div>
         </div>
       </div>
@@ -1909,6 +1910,19 @@ footer {
   </footer>
 </div>
 
+<!-- API Key Overlay -->
+<div id="apiKeyOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:2rem;max-width:440px;width:90%;position:relative">
+    <button onclick="closeKeyPrompt()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer">✕</button>
+    <div style="font-size:1.5rem;margin-bottom:.5rem">🔑</div>
+    <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-bottom:.4rem">OpenAI API Key</div>
+    <div style="font-size:.8rem;color:var(--text2);margin-bottom:1.25rem;line-height:1.6">Введи свой ключ — он сохранится только в браузере и никуда не отправится. Получить ключ: <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--accent)">platform.openai.com →</a></div>
+    <input id="apiKeyInput" type="password" class="form-input" placeholder="sk-proj-..." style="width:100%;box-sizing:border-box;margin-bottom:1rem" onkeydown="if(event.key==='Enter')saveApiKey()">
+    <button class="btn btn-primary" onclick="saveApiKey()" style="width:100%">Сохранить и продолжить →</button>
+    <div style="font-size:.72rem;color:var(--text3);margin-top:.75rem;text-align:center">Ключ хранится только в sessionStorage браузера</div>
+  </div>
+</div>
+
 <!-- Back to top -->
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
 
@@ -2004,8 +2018,16 @@ window.submitForm = function() {
 /* ============================================================
    CHATBOT — OpenAI GPT-4o-mini
    ============================================================ */
-const OR_KEY = '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';
 const OR_URL = 'https://api.openai.com/v1/chat/completions';
+// API key stored in sessionStorage — never in code
+function getApiKey() {
+  return sessionStorage.getItem('testly_api_key') || '';
+}
+function setApiKey(key) {
+  sessionStorage.setItem('testly_api_key', key);
+}
+// OR_KEY kept for backward compat
+const OR_KEY = getApiKey();
 
 const SYSTEM_CONTEXT = `You are Testly AI, an expert A/B testing analyst built into the Testly platform.
 You help users understand their A/B test results, statistical significance, and growth strategies.
@@ -2043,7 +2065,7 @@ window.callAI = async function(userMsg) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${OR_KEY}`
+      'Authorization': `Bearer ${getApiKey()}`
     },
     body: JSON.stringify({
       model: 'gpt-4o-mini',
@@ -2404,6 +2426,18 @@ const LANGS = {
     faq4_a:'Yes, but with caution. Tests on different pages can run simultaneously. Tests on overlapping user journeys can interfere. Testly flags these automatically.',
     faq5_a:'A non-significant result means the change likely has no meaningful impact. Reassess your hypothesis, gather qualitative data, and form a stronger hypothesis.',
     insight2_body:'Version B attracted <strong>31.7% more clicks</strong> (1,580 vs 1,200). Average session duration increased by <strong>18 seconds</strong>, and pages-per-session rose from 2.1 to 2.7.',
+
+    dash_h:'Experiment Dashboard', dash_sub:'SaaS Landing Page CTA Test · Source: VWO Industry Benchmark 2024',
+    dash_insights_btn:'View AI Insights →', dash_variant_h:'Variant Comparison',
+    dash_va:'Version A', dash_vb:'Version B', dash_conv_prog:'Conversion progress',
+    dash_stat1:'Total Clicks', dash_stat2:'Avg Conversion', dash_stat3:'Avg Bounce Rate',
+    dash_stat4:'Statistical Confidence', dash_stat5:'Avg Session Duration', dash_stat6:'Est. Revenue Lift',
+    dash_all_exp:'All Experiments', dash_ai_label:'AI-Generated Analytics',
+    th_metric:'Metric', th_diff:'Difference', th_winner:'Winner', th_status:'Status',
+    th_experiment:'Experiment', th_variants:'Variants', th_visitors:'Visitors',
+    th_conv_lift:'Conversion Lift', th_confidence:'Confidence',
+    chart1_title:'Clicks Over Time', chart2_title:'Conversion Rate Comparison',
+    case_h:'Real A/B Test Case Studies',
     footer_desc:'AI-powered A/B testing for teams that care about evidence over intuition.',footer_nav:'Navigation',footer_authors:'Authors',
     music_genre:'Lo-fi · Ambient',
   },
@@ -2539,6 +2573,18 @@ const LANGS = {
     faq4_a:'Да, но осторожно. Тесты на разных страницах — можно. На пересекающихся путях — могут мешать. Testly автоматически выявляет конфликты.',
     faq5_a:'Незначимый результат тоже ценен — изменение вероятно не влияет на метрику. Пересмотрите гипотезу и соберите качественные данные.',
     insight2_body:'Версия B привлекла на <strong>31.7% больше кликов</strong> (1 580 против 1 200). Среднее время сессии выросло на <strong>18 секунд</strong>, страниц за сессию — с 2.1 до 2.7.',
+
+    dash_h:'Панель экспериментов', dash_sub:'Тест CTA на лендинге · Источник: VWO Industry Benchmark 2024',
+    dash_insights_btn:'Смотреть ИИ-аналитику →', dash_variant_h:'Сравнение вариантов',
+    dash_va:'Версия A', dash_vb:'Версия B', dash_conv_prog:'Прогресс конверсии',
+    dash_stat1:'Всего кликов', dash_stat2:'Ср. конверсия', dash_stat3:'Ср. показатель отказов',
+    dash_stat4:'Статистическая достоверность', dash_stat5:'Ср. длительность сессии', dash_stat6:'Расчётный рост дохода',
+    dash_all_exp:'Все эксперименты', dash_ai_label:'ИИ-аналитика',
+    th_metric:'Метрика', th_diff:'Разница', th_winner:'Победитель', th_status:'Статус',
+    th_experiment:'Эксперимент', th_variants:'Варианты', th_visitors:'Посетители',
+    th_conv_lift:'Рост конверсии', th_confidence:'Достоверность',
+    chart1_title:'Клики по времени', chart2_title:'Сравнение конверсии',
+    case_h:'Реальные кейсы A/B тестирования',
     footer_desc:'A/B тестирование на базе ИИ для команд, которым важны данные.',footer_nav:'Навигация',footer_authors:'Авторы',
     music_genre:'Ло-фай · Эмбиент',
   },
@@ -2673,6 +2719,18 @@ const LANGS = {
     faq4_a:'Иә, бірақ абайлап. Әртүрлі беттердегі тесттер — болады. Қабаттасатын жолдар бір-біріне кедергі жасауы мүмкін. Testly оларды автоматты анықтайды.',
     faq5_a:'Маңызды емес нәтиже де құнды — өзгеріс метрикаға әсер етпейді. Гипотезаны қайта қарастырып, сапалық деректер жинаңыз.',
     insight2_body:'B нұсқасы <strong>31.7% көп клик</strong> тартты (1 580 vs 1 200). Орташа сессия уақыты <strong>18 секундқа</strong> өсті, сессия бойынша беттер 2.1-ден 2.7-ге дейін жетті.',
+
+    dash_h:'Эксперимент бақылау тақтасы', dash_sub:'Лендинг CTA тесті · Дерек: VWO Industry Benchmark 2024',
+    dash_insights_btn:'ЖИ-талдауды қарау →', dash_variant_h:'Нұсқаларды салыстыру',
+    dash_va:'A нұсқасы', dash_vb:'B нұсқасы', dash_conv_prog:'Конверсия барысы',
+    dash_stat1:'Барлық кликтер', dash_stat2:'Орт. конверсия', dash_stat3:'Орт. кету жылдамдығы',
+    dash_stat4:'Статистикалық сенімділік', dash_stat5:'Орт. сессия ұзақтығы', dash_stat6:'Болжамды кіріс өсімі',
+    dash_all_exp:'Барлық эксперименттер', dash_ai_label:'ЖИ-аналитика',
+    th_metric:'Метрика', th_diff:'Айырмашылық', th_winner:'Жеңімпаз', th_status:'Күй',
+    th_experiment:'Эксперимент', th_variants:'Нұсқалар', th_visitors:'Келушілер',
+    th_conv_lift:'Конверсия өсімі', th_confidence:'Сенімділік',
+    chart1_title:'Уақыт бойынша кликтер', chart2_title:'Конверсияны салыстыру',
+    case_h:'Нақты A/B тест кейстері',
     footer_desc:'Деректерге негізделген командалар үшін ЖИ A/B тестілеуі.',footer_nav:'Навигация',footer_authors:'Авторлар',
     music_genre:'Ло-фай · Эмбиент',
   }
@@ -2810,7 +2868,7 @@ Version B: "${b}"
 
   fetch(OR_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OR_KEY}` },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getApiKey()}` },
     body: JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'user', content: prompt }] })
   })
   .then(r => r.json())
@@ -2845,6 +2903,22 @@ window.resetAnalyzer = function() {
   document.getElementById('analyzerA').value = '';
   document.getElementById('analyzerB').value = '';
   document.getElementById('analyzerContext').value = '';
+};
+
+/* ============================================================
+   API KEY PROMPT UI
+   ============================================================ */
+function showKeyPrompt() {
+  document.getElementById('apiKeyOverlay').style.display = 'flex';
+}
+window.saveApiKey = function() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) return;
+  setApiKey(key);
+  document.getElementById('apiKeyOverlay').style.display = 'none';
+};
+window.closeKeyPrompt = function() {
+  document.getElementById('apiKeyOverlay').style.display = 'none';
 };
 
 /* ============================================================
