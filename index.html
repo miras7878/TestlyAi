@@ -1916,8 +1916,8 @@ footer {
     <button onclick="closeKeyPrompt()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer">✕</button>
     <div style="font-size:1.5rem;margin-bottom:.5rem">🔑</div>
     <div style="font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-bottom:.4rem">OpenAI API Key</div>
-    <div style="font-size:.8rem;color:var(--text2);margin-bottom:1.25rem;line-height:1.6">Введи Gemini API ключ — он сохранится только в браузере. Получить бесплатно: <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/apikey →</a></div>
-    <input id="apiKeyInput" type="password" class="form-input" placeholder="AIzaSy..." style="width:100%;box-sizing:border-box;margin-bottom:1rem" onkeydown="if(event.key==='Enter')saveApiKey()">
+    <div style="font-size:.8rem;color:var(--text2);margin-bottom:1.25rem;line-height:1.6">Введи Groq API ключ — он сохранится только в браузере. Получить бесплатно: <a href="https://console.groq.com/keys" target="_blank" style="color:var(--accent)">console.groq.com →</a></div>
+    <input id="apiKeyInput" type="password" class="form-input" placeholder="gsk_..." style="width:100%;box-sizing:border-box;margin-bottom:1rem" onkeydown="if(event.key==='Enter')saveApiKey()">
     <button class="btn btn-primary" onclick="saveApiKey()" style="width:100%" data-i18n="key_save_btn">Сохранить и продолжить →</button>
     <div style="font-size:.72rem;color:var(--text3);margin-top:.75rem;text-align:center" data-i18n="key_note">Ключ хранится только в sessionStorage браузера</div>
   </div>
@@ -2033,32 +2033,25 @@ async function callGeminiAPI(messages) {
   const key = getApiKey();
   if (!key) { showKeyPrompt(); throw new Error('No API key'); }
   
-  // Convert OpenAI-style messages to Gemini format
-  const systemMsg = messages.find(m => m.role === 'system');
-  const chatMsgs = messages.filter(m => m.role !== 'system');
-  
-  const contents = chatMsgs.map(m => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }]
-  }));
-  
-  const body = { contents };
-  if (systemMsg) {
-    body.system_instruction = { parts: [{ text: systemMsg.content }] };
-  }
-  
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
+  const url = 'https://api.groq.com/openai/v1/chat/completions';
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: messages,
+      max_tokens: 1024
+    })
   });
   if (!res.ok) {
-    const err = await res.json();
+    const err = await res.json().catch(() => ({}));
     throw new Error(err?.error?.message || 'API error ' + res.status);
   }
   const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+  return data?.choices?.[0]?.message?.content || 'No response';
 }
 
 const SYSTEM_CONTEXT = `You are Testly AI, an expert A/B testing analyst built into the Testly platform.
