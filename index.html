@@ -482,6 +482,8 @@ td { padding: 0.85rem 1rem; font-size: 0.875rem; color: var(--text); }
 .section-heading { margin-bottom: 3rem; }
 .section-heading h2 { font-size: clamp(1.8rem, 3.5vw, 2.6rem); letter-spacing: -0.02em; margin-bottom: 0.6rem; }
 .section-heading p { color: var(--text2); max-width: 520px; font-size: 1rem; }
+.section-heading.center { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.section-heading.center p { text-align: center; }
 
 /* ============================================================
    PAGE: DASHBOARD
@@ -1110,9 +1112,9 @@ footer {
     <!-- AI VIDEO SECTION -->
   <section class="section" style="padding-top:3.5rem;padding-bottom:3.5rem">
     <div class="section-heading center">
-      <div class="tag" style="background:rgba(0,212,170,0.1);color:var(--accent3);border-color:rgba(0,212,170,0.25)" data-i18n="vid_tag">🎬 AI Video</div>
-      <h2 data-i18n="vid_h2">Why A/B Testing Works</h2>
-      <p style="color:var(--text2)" data-i18n="vid_sub">Stop guessing — let data decide. Here's the power behind every experiment.</p>
+      <div class="tag" style="background:rgba(0,212,170,0.1);color:var(--accent3);border-color:rgba(0,212,170,0.25);display:inline-block" data-i18n="vid_tag">🎬 AI Video</div>
+      <h2 data-i18n="vid_h2" style="text-align:center">Why A/B Testing Works</h2>
+      <p style="color:var(--text2);text-align:center" data-i18n="vid_sub">Stop guessing — let data decide. Here's the power behind every experiment.</p>
     </div>
     <div style="max-width:860px;margin:0 auto;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:var(--card-shadow);background:#000;position:relative">
       <video controls autoplay muted loop playsinline
@@ -1469,7 +1471,7 @@ footer {
             <strong style="color:var(--text)">Соц. доказательство</strong><br>B показывал "1 млн рекомендаций в месяц" — но не помогло
           </div>
           <div style="background:var(--bg4);border-radius:8px;padding:.65rem .8rem;font-size:.74rem;color:var(--text2)">
-            <strong style="color:var(--text)">Вывод</strong><br>Меньше визуального шума = меньше воспринимаемых усилий = больше конверсий
+            <strong style="color:var(--text)">Вывод</strong><br>Победила Version A — меньше визуального шума снизило воспринимаемые усилия пользователя и увеличило конверсию
           </div>
         </div>
       </div>
